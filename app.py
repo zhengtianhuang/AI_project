@@ -10,7 +10,7 @@ from linebot.exceptions import (
     InvalidSignatureError
 )
 from linebot.models import (
-    MessageEvent, TextMessage, TextSendMessage,
+    MessageEvent, TextMessage, TextSendMessage, TemplateSendMessage, FlexSendMessage
 )
 # =============副程式==================
 
@@ -46,9 +46,11 @@ def callback():
 
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
+    print("=============")
+    print(template("a", "b"))
     line_bot_api.reply_message(
         event.reply_token,
-        TextSendMessage(template("a", "b"))
+        template("a", "b")
     )
 
 
