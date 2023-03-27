@@ -5,7 +5,7 @@ from linebot.models import (FlexSendMessage)
 def template(a, b):
     # 給兩個長度為5的list參數(a景點名稱和b圖片連結)，設計呈現方式
     FlexMessage = load(
-        open('./json/card.json', 'r', encoding='utf-8'))
+        open('./json/restaurant.json', 'r', encoding='utf-8'))
     return FlexSendMessage("flex", FlexMessage)
 
 
