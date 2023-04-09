@@ -14,7 +14,7 @@ from linebot.models import (
 )
 # =============副程式==================
 
-from function import (template, spider)
+from function import (templates, template, spider)
 
 # =============變數==================
 app = Flask(__name__)
@@ -24,6 +24,11 @@ line_bot_api = LineBotApi(
 handler = WebhookHandler('adef5f3ce019ca875e5fe10c1dff3b15')
 
 # ==========這裡基本不用動============
+
+
+@app.route("/", methods=['GET'])
+def test():
+    return "ok"
 
 
 @app.route("/callback", methods=['POST'])
@@ -43,16 +48,20 @@ def callback():
 
     return 'OK'
 
+# =============收到文字訊息==================
+
 
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
     print("=============")
-    print(template("a", "b"))
+    test = templates()
+    test.add_restaurant_bubble("test", "123")
+    test.add_restaurant_bubble("test2", "456")
     line_bot_api.reply_message(
         event.reply_token,
-        template("a", "b")
+        FlexSendMessage("flex", test.template)
     )
 
 
 if __name__ == "__main__":
-    app.run()
+    app.run(port=8080)
