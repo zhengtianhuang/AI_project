@@ -10,13 +10,14 @@ class templates():
             "contents": []
         }
 
-    def add_restaurant_bubble(self, name, location):
-        bubble = load(
-            open('./json/bubbles/restaurantBubble.json', 'r', encoding='utf-8'))
+    def add_restaurant_bubble(self, image, name, rating, add, open):
+        bubble = load(open('./json/bubbles/res.json', 'r', encoding='utf-8'))
+        bubble["hero"]["action"]["uri"] = image
         bubble["body"]["contents"][0]["text"] = name
-        bubble["body"]["contents"][3]["contents"][1]["text"] = location
+        bubble["body"]["contents"][1]["contents"][5]["text"] = rating
+        bubble["body"]["contents"][3]["contents"][1]["text"] = add
+        bubble["hero"]["contents"][4]["contents"][1]["text"] = open
         self.template["contents"].append(bubble)
-
 
 def spider(latitude, longitude):
     # 設置地圖API的URL和參數
