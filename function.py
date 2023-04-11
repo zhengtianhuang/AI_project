@@ -51,7 +51,7 @@ def spider2(latitude, longitude):
     keyword = "寵物餐廳"
     radius = str(500)
     resPhotoPrfx = "https://maps.googleapis.com/maps/api/place/photo?maxwidth=400"
-    query_url = f"{url}location={data['latitude']},{data['longitude']}&radius={radius}&types={types}&keyword={keyword}&key={api_key}&language=zh-TW"
+    query_url = f"{url}location={latitude},{longitude}&radius={radius}&types={types}&keyword={keyword}&key={api_key}&language=zh-TW"
     response = requests.get(query_url)
     res = response.json()
     
