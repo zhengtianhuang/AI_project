@@ -41,3 +41,36 @@ def spider(latitude, longitude):
         vicinity = result['vicinity']
         print(f"名字：{name}\n 評分：({rating})\n 地址：{vicinity}")
     return results
+
+def spider2(latitude, longitude):
+    resInfoAll = list()
+    GOOGLE_PLACES_API_KEY ="AIzaSyBt5lGoOVCzoKV9F03ZU9QwwI6rSxnI38Q"
+    url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?"
+    api_key = "AIzaSyBt5lGoOVCzoKV9F03ZU9QwwI6rSxnI38Q"
+    types = "pet_store,veterinary_care"
+    keyword = "寵物餐廳"
+    radius = str(500)
+    resPhotoPrfx = "https://maps.googleapis.com/maps/api/place/photo?maxwidth=400"
+    query_url = f"{url}location={data['latitude']},{data['longitude']}&radius={radius}&types={types}&keyword={keyword}&key={api_key}&language=zh-TW"
+    response = requests.get(query_url)
+    res = response.json()
+    
+    if res["status"] == "OK":
+        results = res["results"]
+        for result in results:
+            resInfo = dict()
+            resInfo['resPhoto'] = f"{resPhotoPrfx}&photo_reference={(result['photos'][0])['photo_reference']}&key={api_key}"
+            resInfo['resName'] = result["name"]
+            resInfo['resRating'] = result["rating"]
+            resInfo['resAdd'] = f"{result['plus_code']['compound_code'][-3:]}{result['vicinity']}"
+            resInfo['resOpen'] = ""
+            if result["opening_hours"]["open_now"] == True:
+                resInfo['resOpen'] = "營業中"
+                resInfoAll.append(resInfo)
+            else:
+                resInfo['resOpen'] = "目前無營業"
+                resInfoAll.append(resInfo)
+    else:
+        print("Request failed.")
+    print(resInfoAll)  
+    return resInfoAll
