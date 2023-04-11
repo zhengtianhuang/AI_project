@@ -10,11 +10,11 @@ from linebot.exceptions import (
     InvalidSignatureError
 )
 from linebot.models import (
-    MessageEvent, TextMessage, TextSendMessage, TemplateSendMessage, FlexSendMessage
+    MessageEvent, TextMessage, TextSendMessage, TemplateSendMessage, FlexSendMessage, LocationSendMessage, LocationMessage
 )
 # =============副程式==================
 
-from function import (templates, template, spider)
+from function import (templates, spider)
 
 # =============變數==================
 app = Flask(__name__)
@@ -57,9 +57,22 @@ def handle_message(event):
     test = templates()
     test.add_restaurant_bubble("test", "123")
     test.add_restaurant_bubble("test2", "456")
+
     line_bot_api.reply_message(
         event.reply_token,
         FlexSendMessage("flex", test.template)
+    )
+# ========================================================若是位置訊息
+
+
+@handler.add(MessageEvent, message=LocationMessage)
+def handle_location(event):
+    print("------------------------------------")
+    print(event.message)
+    line_bot_api.reply_message(
+        event.reply_token,
+        TextSendMessage(
+            text=f"{event.message.latitude},{event.message.longitude}")
     )
 
 
