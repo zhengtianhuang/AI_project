@@ -67,12 +67,16 @@ def handle_message(event):
 
 @handler.add(MessageEvent, message=LocationMessage)
 def handle_location(event):
-    print("------------------------------------")
-    print(event.message)
+    restaurants = spider(event.message.latitude, event.message.longitude)
+    rtTemplate = templates()
+    for i, d in enumerate(restaurants):
+        rtTemplate.add_restaurant_bubble(d['name'], d['vicinity'])
+        if i > 8:
+            break
+
     line_bot_api.reply_message(
         event.reply_token,
-        TextSendMessage(
-            text=f"{event.message.latitude},{event.message.longitude}")
+        FlexSendMessage("flex", rtTemplate.template)
     )
 
 
