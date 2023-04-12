@@ -10,14 +10,18 @@ class templates():
             "contents": []
         }
 
-    def add_restaurant_bubble(self, image, name, rating, add, open):
-        bubble = load(open('./json/bubbles/res.json', 'r', encoding='utf-8'))
-        bubble["hero"]["action"]["uri"] = image
-        bubble["body"]["contents"][0]["text"] = name
-        bubble["body"]["contents"][1]["contents"][5]["text"] = rating
-        bubble["body"]["contents"][3]["contents"][1]["text"] = add
-        bubble["hero"]["contents"][4]["contents"][1]["text"] = open
+    def add_restaurant_bubble(self, image, name, rating, add, isOpen):
+        print("==="*20)
+        bubble = load(
+            open('./json/bubbles/restaurantBubble.json', 'r', encoding='utf-8'))
+        # print(bubble)
+        bubble["hero"]["url"] = str(image)
+        bubble["body"]["contents"][0]["text"] = str(name)
+        bubble["body"]["contents"][1]["contents"][5]["text"] = str(rating)
+        bubble["body"]["contents"][3]["contents"][1]["text"] = str(add)
+        bubble["body"]["contents"][4]["contents"][1]["text"] = str(isOpen)
         self.template["contents"].append(bubble)
+
 
 def spider(latitude, longitude):
     # 設置地圖API的URL和參數
@@ -43,9 +47,10 @@ def spider(latitude, longitude):
         print(f"名字：{name}\n 評分：({rating})\n 地址：{vicinity}")
     return results
 
+
 def spider2(latitude, longitude):
     resInfoAll = list()
-    GOOGLE_PLACES_API_KEY ="AIzaSyBt5lGoOVCzoKV9F03ZU9QwwI6rSxnI38Q"
+    GOOGLE_PLACES_API_KEY = "AIzaSyBt5lGoOVCzoKV9F03ZU9QwwI6rSxnI38Q"
     url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?"
     api_key = "AIzaSyBt5lGoOVCzoKV9F03ZU9QwwI6rSxnI38Q"
     types = "pet_store,veterinary_care"
@@ -55,7 +60,7 @@ def spider2(latitude, longitude):
     query_url = f"{url}location={latitude},{longitude}&radius={radius}&types={types}&keyword={keyword}&key={api_key}&language=zh-TW"
     response = requests.get(query_url)
     res = response.json()
-    
+
     if res["status"] == "OK":
         results = res["results"]
         for result in results:
@@ -73,5 +78,25 @@ def spider2(latitude, longitude):
                 resInfoAll.append(resInfo)
     else:
         print("Request failed.")
-    print(resInfoAll)  
+    # print(resInfoAll)
     return resInfoAll
+
+
+restaurants = spider2(25.0568438, 121.4798943)
+# print(restaurants)
+rtTemplate = templates()
+for i, d in enumerate(restaurants):
+
+    try:
+        rtTemplate.add_restaurant_bubble(
+            d['resPhoto'], d['resName'], d['resRating'], d["resAdd"], d["resOpen"])
+    except Exception as e:
+        print(e)
+# print("+"*20)
+# # print(d['resPhoto'])
+# # print(d['resName'])
+# # print(d['resRating'])
+# # print(d['resAdd'])
+# # print(d['resOpen'])
+# print(rtTemplate.template)
+# print("+"*20)

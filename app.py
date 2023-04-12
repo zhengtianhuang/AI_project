@@ -14,7 +14,7 @@ from linebot.models import (
 )
 # =============副程式==================
 
-from function import (templates, spider)
+from function import (templates, spider2)
 
 # =============變數==================
 app = Flask(__name__)
@@ -55,8 +55,9 @@ def callback():
 def handle_message(event):
     print("=============")
     test = templates()
-    test.add_restaurant_bubble("test", "123")
-    test.add_restaurant_bubble("test2", "456")
+    test.add_restaurant_bubble(
+        "https://janstockcoin.com/wp-content/uploads/2021/06/pexels-photo-747964-scaled.jpeg", "name", "rating", "add", "open")
+    # test.add_restaurant_bubble("test2", "456")
 
     line_bot_api.reply_message(
         event.reply_token,
@@ -67,10 +68,18 @@ def handle_message(event):
 
 @handler.add(MessageEvent, message=LocationMessage)
 def handle_location(event):
-    restaurants = spider(event.message.latitude, event.message.longitude)
+    restaurants = spider2(event.message.latitude, event.message.longitude)
+    print(restaurants)
     rtTemplate = templates()
     for i, d in enumerate(restaurants):
-        rtTemplate.add_restaurant_bubble(d['name'], d['vicinity'])
+        # print("+"*20)
+        # print(d['resPhoto'])
+        # print("+"*20)
+        try:
+            rtTemplate.add_restaurant_bubble(
+                d['resPhoto'], d['resName'], d['resRating'], d["resAdd"], d["resOpen"])
+        except Exception as e:
+            print(e)
         if i > 8:
             break
 
