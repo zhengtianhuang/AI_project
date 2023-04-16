@@ -1,8 +1,8 @@
 # app.py
 # =============庫==================
-
+import pymysql
 from flask import Flask, request, abort
-
+from flask_cors import CORS
 from linebot import (
     LineBotApi, WebhookHandler
 )
@@ -63,6 +63,12 @@ def handle_message(event):
         event.reply_token,
         FlexSendMessage("flex", test.template)
     )
+
+
+def handle_text_message(event):
+    # get userId
+    user_id = event.source.user_id
+    print(user_id)
 # ========================================================若是位置訊息
 
 
