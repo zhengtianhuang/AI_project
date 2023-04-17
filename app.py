@@ -13,7 +13,7 @@ from linebot.models import (
 # =============副程式==================
 
 from function import (templates, spider2)
-from server import (user_id_exists)
+from server import (user_id_exists, append_pet)
 # =============變數==================
 app = Flask(__name__)
 
@@ -69,6 +69,10 @@ def handle_text_message(event):
     user_id = event.source.user_id
     print(user_id)
     user_id_exists(user_id)
+    pet_name = '10'
+    pet_photo = 'ss.jpg'
+    pet_breed = '薩摩耶'
+    append_pet(user_id, pet_name, pet_photo, pet_breed)
 # ========================================================若是位置訊息
 
 
