@@ -69,7 +69,6 @@ def handle_text_message(event):
     user_id = event.source.user_id
     print(user_id)
     user_id_exists(user_id)
-
 # ========================================================若是位置訊息
 
 
