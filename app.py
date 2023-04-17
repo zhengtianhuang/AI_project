@@ -1,8 +1,6 @@
 # app.py
 # =============庫==================
-import pymysql
 from flask import Flask, request, abort
-from flask_cors import CORS
 from linebot import (
     LineBotApi, WebhookHandler
 )
@@ -15,7 +13,7 @@ from linebot.models import (
 # =============副程式==================
 
 from function import (templates, spider2)
-
+from server import (user_id_exists)
 # =============變數==================
 app = Flask(__name__)
 
@@ -65,10 +63,13 @@ def handle_message(event):
     )
 
 
+@handler.add(MessageEvent, message=TextMessage)
 def handle_text_message(event):
     # get userId
     user_id = event.source.user_id
     print(user_id)
+    user_id_exists(user_id)
+
 # ========================================================若是位置訊息
 
 
