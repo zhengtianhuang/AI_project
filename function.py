@@ -1,6 +1,7 @@
 import json
 import requests
 from json import load
+from server import append_pet, user_id_exists
 
 
 class templates():
@@ -82,21 +83,72 @@ def spider2(latitude, longitude):
     return resInfoAll
 
 
-restaurants = spider2(25.0568438, 121.4798943)
-# print(restaurants)
-rtTemplate = templates()
-for i, d in enumerate(restaurants):
+# step = {}
 
-    try:
-        rtTemplate.add_restaurant_bubble(
-            d['resPhoto'], d['resName'], d['resRating'], d["resAdd"], d["resOpen"])
-    except Exception as e:
-        print(e)
-# print("+"*20)
-# # print(d['resPhoto'])
-# # print(d['resName'])
-# # print(d['resRating'])
-# # print(d['resAdd'])
-# # print(d['resOpen'])
-# print(rtTemplate.template)
-# print("+"*20)
+
+# def startCreatePet(userId):
+#     global step
+#     step[userId] = 1
+
+
+# def checkCreatePet(userId):
+#     global step
+#     if userId not in step:
+#         return 0
+#     elif step[userId] == 1:
+#         step[userId] = 2
+#     elif step[userId] == 2:
+#         step[userId] = 3
+#     elif step[userId] == 3:
+#         step[userId] = 0
+#         return 4
+#     return step[userId]
+
+
+# def creatPet(step, data):
+#     if step == 2:
+#         return f"你的寵物名字是{data},請輸入品種"
+#     elif step == 3:
+#         return f"品種為{data},請傳一張照片！"
+#     elif step == 4:
+#         return "真可愛！"
+#     else:
+#         return (f"發生錯誤step:{step}")
+
+class PetCreator:
+    def __init__(self):
+        self.steps = {}
+        self.breed = {}
+        self.name = {}
+
+    def start_create_pet(self, user_id):
+        self.steps[user_id] = 1
+
+    def check_create_pet(self, user_id):
+        if user_id not in self.steps:
+            return 0
+        elif self.steps[user_id] == 1:
+            self.steps[user_id] = 2
+        elif self.steps[user_id] == 2:
+            self.steps[user_id] = 3
+        elif self.steps[user_id] == 3:
+            self.steps[user_id] = 0
+            return 4
+        return self.steps[user_id]
+
+    def create_pet(self, user_id, step, data):
+        if step == 2:
+            self.name[user_id] = data
+            return f"你的寵物名字是{data},請輸入品種"
+        elif step == 3:
+            self.breed[user_id] = data
+            return f"品種為{data},請傳一張照片！"
+        elif step == 4:
+            # user_id_exists(user_id)
+            # append_pet(user_id, self.name[user_id],
+            #            data, self.breed[user_id])
+            print(
+                f"{user_id},{self.name[user_id]},{data},{self.breed[user_id]}")
+            return "真可愛！"
+        else:
+            return (f"發生錯誤step:{step}")
