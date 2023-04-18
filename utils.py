@@ -1,55 +1,9 @@
 import json
 import requests
-from json import load
-from server import append_pet, user_id_exists
-
-
-class templates():
-    def __init__(self):
-        self.template = {
-            "type": "carousel",
-            "contents": []
-        }
-
-    def add_restaurant_bubble(self, image, name, rating, add, isOpen):
-        print("==="*20)
-        bubble = load(
-            open('./json/bubbles/restaurantBubble.json', 'r', encoding='utf-8'))
-        # print(bubble)
-        bubble["hero"]["url"] = str(image)
-        bubble["body"]["contents"][0]["text"] = str(name)
-        bubble["body"]["contents"][1]["contents"][5]["text"] = str(rating)
-        bubble["body"]["contents"][3]["contents"][1]["text"] = str(add)
-        bubble["body"]["contents"][4]["contents"][1]["text"] = str(isOpen)
-        self.template["contents"].append(bubble)
+from database import append_pet, user_id_exists
 
 
 def spider(latitude, longitude):
-    # 設置地圖API的URL和參數
-    api_url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json"
-    params = {
-        "location": f"{latitude}, {longitude}",  # 經緯度，這裡是台北市中正區的座標
-        "radius": "500",  # 搜尋半徑，單位是公尺
-        "type": "restaurant",  # 搜尋類型，這裡是餐廳
-        "key": "AIzaSyDZzAdeBHRqkDsNHUbO2fLTZnSey2hzkq8"  # 請填入自己的API Key
-    }
-
-    # 使用Requests發送HTTP請求
-    response = requests.get(api_url, params=params)
-
-    # 解析回應內容
-    jsonParse = json.loads(response.text)
-    results = jsonParse["results"]
-
-    for result in results:
-        name = result['name']
-        rating = result['rating']
-        vicinity = result['vicinity']
-        print(f"名字：{name}\n 評分：({rating})\n 地址：{vicinity}")
-    return results
-
-
-def spider2(latitude, longitude):
     resInfoAll = list()
     GOOGLE_PLACES_API_KEY = "AIzaSyBt5lGoOVCzoKV9F03ZU9QwwI6rSxnI38Q"
     url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?"
