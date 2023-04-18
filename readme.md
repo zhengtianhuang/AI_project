@@ -4,16 +4,16 @@
 
 ## 專案結構
 
-.
-├── README.md
-├── app.py
-├── database.py
-├── handlers.py
-├── templates.py
-├── tests
-│   ├── app_test.py
-│   ├── handler.test.py
-└── utils.py
+.  
+├── README.md   
+├── app.py   
+├── database.py   
+├── handlers.py   
+├── templates.py   
+├── tests   
+│   ├── app_test.py  
+│   ├── handler.test.py  
+└── utils.py  
 
 
 - `app.py`：主要程式碼，初始化 Flask 應用程式。
