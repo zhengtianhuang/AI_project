@@ -1,4 +1,4 @@
-from utils import (spider, PetCreator, save_img)
+from utils import (spider, PetCreator)
 from templates import templates
 from linebot import (LineBotApi, WebhookHandler)
 from linebot.models import (
@@ -48,11 +48,18 @@ def handle_location(event):
 @handler.add(MessageEvent, message=ImageMessage)
 def handle_message(event):
     # 获取图片消息内容
-    message = event.message
-    if isinstance(message, ImageMessage):
-        # 获取图片 ID 和文件名
-        image_id = message.id
-        # 使用 LineBot SDK 下载图片
-        content = line_bot_api.get_message_content(image_id)
-        print(content)
-        save_img(image_id, content)
+    message = "cool~"
+    user_id = event.source.user_id
+    if isinstance(event.message, ImageMessage):
+        creatPetStep = pet.check_create_pet(user_id)
+        if creatPetStep == 4:
+            # 获取图片 ID 和文件名
+            image_id = event.message.id
+            # 使用 LineBot SDK 下载图片
+            content = line_bot_api.get_message_content(image_id)
+            print(content)
+            message = pet.save_pet_img(user_id, image_id, content)
+    line_bot_api.reply_message(
+        event.reply_token,
+        TextSendMessage(message)
+    )

@@ -89,9 +89,17 @@ class PetCreator:
         elif self.steps[user_id] == 2:
             self.steps[user_id] = 3
         elif self.steps[user_id] == 3:
-            self.steps[user_id] = 0
             return 4
         return self.steps[user_id]
+
+    def _save_img(self, id, content):
+        timestamp = str(int(time.time()))
+        # 将文件保存到本地文件系统
+        filename = f"{id}-{timestamp}.jpg"
+        photo_path = os.path.join(staticPath, 'img', filename)
+        with open(photo_path, 'wb') as f:
+            for chunk in content.iter_content():
+                f.write(chunk)
 
     def create_pet(self, user_id, step, data):
         if step == 2:
@@ -104,18 +112,12 @@ class PetCreator:
             # user_id_exists(user_id)
             # append_pet(user_id, self.name[user_id],
             #            data, self.breed[user_id])
-            print(
-                f"{user_id},{self.name[user_id]},{data},{self.breed[user_id]}")
-            return "真可愛！"
+            return "你傳的不是圖片！"
         else:
             return (f"發生錯誤step:{step}")
 
-
-def save_img(id, content):
-    timestamp = str(int(time.time()))
-    # 将文件保存到本地文件系统
-    filename = f"{id}-{timestamp}.jpg"
-    photo_path = os.path.join(staticPath, 'img', filename)
-    with open(photo_path, 'wb') as f:
-        for chunk in content.iter_content():
-            f.write(chunk)
+    def save_pet_img(self, user_id, img_id, content):
+        self.steps[user_id] = 0
+        self._save_img(img_id, content)
+        print(f"{user_id},{self.name[user_id]},{self.breed[user_id]}")
+        return (f"名字：{self.name[user_id]},品種：{self.breed[user_id]}")
