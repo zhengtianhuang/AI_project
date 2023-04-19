@@ -1,8 +1,8 @@
-from utils import (spider, PetCreator)
+from utils import (spider, PetCreator, save_img)
 from templates import templates
 from linebot import (LineBotApi, WebhookHandler)
 from linebot.models import (
-    TextSendMessage, FlexSendMessage, TextMessage, LocationMessage, MessageEvent)
+    TextSendMessage, FlexSendMessage, TextMessage, LocationMessage, MessageEvent, ImageMessage)
 pet = PetCreator()
 handler = WebhookHandler('adef5f3ce019ca875e5fe10c1dff3b15')
 line_bot_api = LineBotApi(
@@ -43,3 +43,16 @@ def handle_location(event):
         event.reply_token,
         FlexSendMessage("flex", rtTemplate.template)
     )
+
+
+@handler.add(MessageEvent, message=ImageMessage)
+def handle_message(event):
+    # 获取图片消息内容
+    message = event.message
+    if isinstance(message, ImageMessage):
+        # 获取图片 ID 和文件名
+        image_id = message.id
+        # 使用 LineBot SDK 下载图片
+        content = line_bot_api.get_message_content(image_id)
+        print(content)
+        save_img(image_id, content)

@@ -1,6 +1,9 @@
-import json
 import requests
 from database import append_pet, user_id_exists
+import time
+from pathlib import Path
+import os
+staticPath = Path(__file__).resolve().parent/'static'
 
 
 def spider(latitude, longitude):
@@ -106,3 +109,13 @@ class PetCreator:
             return "真可愛！"
         else:
             return (f"發生錯誤step:{step}")
+
+
+def save_img(id, content):
+    timestamp = str(int(time.time()))
+    # 将文件保存到本地文件系统
+    filename = f"{id}-{timestamp}.jpg"
+    photo_path = os.path.join(staticPath, 'img', filename)
+    with open(photo_path, 'wb') as f:
+        for chunk in content.iter_content():
+            f.write(chunk)
