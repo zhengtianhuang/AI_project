@@ -26,7 +26,7 @@ def user_id_exists(user_id):
     try:
         with cursor:
             # Check if user_id exists in the database
-            sql = 'SELECT * FROM `user` WHERE `user_id` = %s'
+            sql = 'SELECT * FROM `users` WHERE `user_id` = %s'
             cursor.execute(sql, (user_id,))
             result = cursor.fetchall()
             # if cursor.fetchall() find nothing return () -> empty tuple
@@ -34,12 +34,12 @@ def user_id_exists(user_id):
                 print("資料已存在DB")
             elif isinstance(result, tuple) and len(result) == 0:
                 # If user_id does not exist, insert a new row into the database
-                sql = 'INSERT INTO `user` (`user_id`) VALUES (%s)'
+                sql = 'INSERT INTO `users` (`user_id`) VALUES (%s)'
                 cursor.execute(sql, (user_id,))
                 db.commit()
                 # test whether the userid is insert into database successfully
                 cursor.execute(
-                    "SHOW KEYS FROM `user` WHERE Key_name = 'PRIMARY'")
+                    "SHOW KEYS FROM `users` WHERE Key_name = 'PRIMARY'")
                 result_set = cursor.fetchall()
                 if result_set:
                     # insert success
@@ -61,7 +61,7 @@ def append_pet(user_id, pet_name, pet_photo, pet_breed):
     try:
         with cursor:
             # check whether data exists in database
-            sql = 'SELECT `user_id`, `pet_name`,`pet_breed` FROM `pet` WHERE `user_id` = %s AND `pet_name` = %s AND `pet_breed` = %s'
+            sql = 'SELECT `user_id`, `pet_name`,`pet_breed` FROM `pets` WHERE `user_id` = %s AND `pet_name` = %s AND `pet_breed` = %s'
             cursor.execute(sql, (user_id, pet_name, pet_breed))
             result = cursor.fetchall()
             print(result)
@@ -70,7 +70,7 @@ def append_pet(user_id, pet_name, pet_photo, pet_breed):
                 print("資料已存在DB")
             elif isinstance(result, tuple) and len(result) == 0:
                 # If user_id does not exist, insert a new row into the database
-                sql = 'INSERT INTO `pet`(`user_id`, `pet_name`, `pet_photo`, `pet_breed`) VALUES (%s , %s , %s , %s)'
+                sql = 'INSERT INTO `pets`(`user_id`, `pet_name`, `pet_photo`, `pet_breed`) VALUES (%s , %s , %s , %s)'
                 cursor.execute(sql, (user_id, pet_name, pet_photo, pet_breed))
                 db.commit()
                 print("資料加入DB成功")
@@ -80,3 +80,25 @@ def append_pet(user_id, pet_name, pet_photo, pet_breed):
     finally:
         cursor.close()  # turn off cursor
         db.close()
+
+
+def search_pet(user_id):
+    db = connect_database()
+    # 連線後的游標
+    cursor = db.cursor()
+    # 按用户ID查询宠物信息
+    query = "SELECT `pet_name`, `pet_photo`, `pet_breed` FROM pets WHERE user_id = %s"
+    cursor.execute(query, (user_id))
+
+    # 获取查询结果
+    result = cursor.fetchall()
+
+    # 输出查询结果
+    for row in result:
+        print("Pet name: {}, photo: {}, breed: {}".format(
+            row[0], row[1], row[2]))
+
+    # 关闭数据库连接
+    cursor.close()
+    db.close()
+    return result
