@@ -40,3 +40,4 @@ class templates():
         bubble["footer"]["contents"][3]["action"]["data"] = f"{self.tCount}刪除"
 
         self.template["contents"].append(bubble)
+        self.tCount += 1

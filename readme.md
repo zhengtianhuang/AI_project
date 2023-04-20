@@ -35,8 +35,9 @@
 ## 如何使用
 
 1. 從github下載此專案。
-2. 需自行新增secret.env檔，設定三個系統變數CHANNEL_ACCESS_TOKEN,CHANNEL_SECRET,WEBHOOK_URL
-3. 執行app.py 
+2. 匯入db
+3. 需自行新增secret.env檔，設定三個系統變數CHANNEL_ACCESS_TOKEN,CHANNEL_SECRET,WEBHOOK_URL
+4. 執行app.py 
 4. ngrok http 8080
 
 ## 相關連結

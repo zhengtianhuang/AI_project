@@ -2,11 +2,12 @@ from utils import (spider, PetCreator)
 from templates import templates
 from linebot import (LineBotApi, WebhookHandler)
 from linebot.models import (
-    TextSendMessage, FlexSendMessage, TextMessage, LocationMessage, MessageEvent, ImageMessage)
+    TextSendMessage, FlexSendMessage, TextMessage, LocationMessage, MessageEvent, ImageMessage, PostbackEvent)
 from dotenv import load_dotenv
 import os
 from database import search_pet
 from pathlib import Path
+import re
 # 載入 .env 文件中的環境變數
 load_dotenv("secret.env")
 # 使用 os 模組獲取環境變數的值
@@ -83,3 +84,13 @@ def handle_message(event):
         event.reply_token,
         TextSendMessage(message)
     )
+
+
+@handler.add(PostbackEvent)
+def handle_message(event):
+    s = event.postback.data
+    match = re.search(r'^(\d+).*更改名字$', s)
+    if match:
+        num = int(match.group(1))
+        print(num)  # 輸出 1
+    print(s)
