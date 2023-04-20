@@ -1,6 +1,9 @@
-import json
 import requests
-from database import append_pet, user_id_exists
+from database import append_pet, user_id_exists, update_pet, delete_pet
+import time
+from pathlib import Path
+import os
+staticPath = Path(__file__).resolve().parent/'static'
 
 
 def spider(latitude, longitude):
@@ -72,11 +75,34 @@ def spider(latitude, longitude):
 class PetCreator:
     def __init__(self):
         self.steps = {}
+        self.updateCol = {}
+        self.updateNum = {}
         self.breed = {}
         self.name = {}
 
+    def start_update_pete(self, user_id, col, num):
+        self.updateCol[user_id] = col
+        self.updateNum[user_id] = num
+
     def start_create_pet(self, user_id):
         self.steps[user_id] = 1
+
+    def update_pet(self, user_id, data):
+
+        if user_id not in self.updateCol:
+            return 0
+        if self.updateCol[user_id] == 0:
+            return 0
+        col_name = "pet_name"
+        if self.updateCol[user_id] == 1:
+            return "這不是圖片"
+        elif self.updateCol[user_id] == 2:
+            col_name = "pet_name"
+        elif self.updateCol[user_id] == 3:
+            col_name = "pet_breed"
+        self.updateCol[user_id] = 0
+        update_pet(col_name, data, user_id, self.updateNum[user_id])
+        return f"成功更改{col_name}"
 
     def check_create_pet(self, user_id):
         if user_id not in self.steps:
@@ -86,9 +112,18 @@ class PetCreator:
         elif self.steps[user_id] == 2:
             self.steps[user_id] = 3
         elif self.steps[user_id] == 3:
-            self.steps[user_id] = 0
             return 4
         return self.steps[user_id]
+
+    def _save_img(self, id, content):
+        timestamp = str(int(time.time()))
+        # 将文件保存到本地文件系统
+        filename = f"{id}-{timestamp}.jpg"
+        photo_path = os.path.join(staticPath, 'img', filename)
+        with open(photo_path, 'wb') as f:
+            for chunk in content.iter_content():
+                f.write(chunk)
+        return filename
 
     def create_pet(self, user_id, step, data):
         if step == 2:
@@ -101,8 +136,22 @@ class PetCreator:
             # user_id_exists(user_id)
             # append_pet(user_id, self.name[user_id],
             #            data, self.breed[user_id])
-            print(
-                f"{user_id},{self.name[user_id]},{data},{self.breed[user_id]}")
-            return "真可愛！"
+            return "你傳的不是圖片！"
         else:
             return (f"發生錯誤step:{step}")
+
+    def save_pet_img(self, user_id, img_id, content):
+        self.steps[user_id] = 0
+        file_name = self._save_img(img_id, content)
+        # print(f"{user_id},{self.name[user_id]},{self.breed[user_id]}")
+        user_id_exists(user_id)
+        append_pet(user_id, self.name[user_id],
+                   file_name, self.breed[user_id])
+        return (f"名字：{self.name[user_id]},品種：{self.breed[user_id]}")
+    def update_pet_img(self,user_id,img_id,content):
+        if self.updateCol[user_id] != 1:
+            return 0
+        self.updateCol[user_id] = 0
+        file_name = self._save_img(img_id, content)
+        update_pet("pet_photo", file_name, user_id, self.updateNum[user_id])
+        

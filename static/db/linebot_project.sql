@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- 主機： localhost
--- 產生時間： 2023 年 04 月 20 日 10:21
+-- 產生時間： 2023 年 04 月 19 日 09:12
 -- 伺服器版本： 10.4.27-MariaDB
 -- PHP 版本： 8.2.0
 
@@ -24,138 +24,127 @@ SET time_zone = "+00:00";
 -- --------------------------------------------------------
 
 --
--- 資料表結構 `emotion`
+-- 資料表結構 `emotions`
 --
 
-CREATE TABLE `emotion` (
+CREATE TABLE `emotions` (
   `emotion_id` int(11) NOT NULL,
   `emotion` varchar(50) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- 傾印資料表的資料 `emotion`
+-- 傾印資料表的資料 `emotions`
 --
 
-INSERT INTO `emotion` (`emotion_id`, `emotion`) VALUES
+INSERT INTO `emotions` (`emotion_id`, `emotion`) VALUES
 (1, '開心'),
 (2, '生氣'),
-(3, '難過'),
-(4, '放鬆');
+(3, '難過');
 
 -- --------------------------------------------------------
 
 --
--- 資料表結構 `emotion_record`
+-- 資料表結構 `pets`
 --
 
-CREATE TABLE `emotion_record` (
-  `pet_id` varchar(50) NOT NULL,
-  `emotion_photo` varchar(100) NOT NULL,
-  `emotion` varchar(50) NOT NULL,
-  `updated_time` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- 傾印資料表的資料 `emotion_record`
---
-
-INSERT INTO `emotion_record` (`pet_id`, `emotion_photo`, `emotion`, `updated_time`) VALUES
-('1', 'happ.jpg', '開心', '2023-04-20 10:36:15'),
-('1', 'emoaional.jpg', '放鬆', '2023-04-20 15:30:47'),
-('1', 'relaxed.jpg', '放鬆', '2023-04-20 15:31:00'),
-('1', 'relaxed.jpg', '放鬆', '2023-04-20 15:58:00');
-
--- --------------------------------------------------------
-
---
--- 資料表結構 `pet`
---
-
-CREATE TABLE `pet` (
+CREATE TABLE `pets` (
   `user_id` varchar(50) NOT NULL,
   `pet_name` varchar(50) NOT NULL,
-  `pet_photo` varchar(100) DEFAULT NULL,
+  `pet_photo` varchar(100) NOT NULL,
   `pet_breed` varchar(50) NOT NULL,
+  `created_time` datetime NOT NULL DEFAULT current_timestamp(),
+  `updated_time` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   `pet_id` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- 傾印資料表的資料 `pet`
+-- 傾印資料表的資料 `pets`
 --
 
-INSERT INTO `pet` (`user_id`, `pet_name`, `pet_photo`, `pet_breed`, `pet_id`) VALUES
-('U751dd717d052680824fd250ddb7a7a55', 'Golden', 'cde.png', '黃金獵犬', 1),
-('oljimmm', 'jimmy', '5678.png', '吉娃娃', 4),
-('U751dd717d052680824fd250ddb7a7a55', 'KOKO', '1234.png', '邊牧', 5),
-('KIOLLLL', 'Oreo2', 'okok.png', '大麥町', 8),
-('KIOLLLL', 'KIKI', '5678.png', '吉娃娃', 9),
-('KIOLLLL', 'coco', '5678.png', '吉娃娃', 10),
-('KIOLLLL', 'jj', '5678.png', '吉娃娃', 11),
-('KIOLLLL', 'aa', '5678.png', '吉娃娃', 12),
-('KIOLLLL', 'cc', '5678.png', '吉娃娃', 14),
-('KIOLLLL', 'dd', '5678.png', '土狗', 15),
-('KIOLLLL', 'ff', '5678.png', '黑狗', 16),
-('KIOLLLL', 'ee', '5678.png', '黃狗', 17),
-('KIOLLLL', 'jiok', '5678.png', '黃狗', 18),
-('KIOLLLL', 'ji', '5678.png', '黃狗', 19),
-('KIOLLLL', 'j', '5678.png', '黃狗', 20),
-('KIOLLLL', 'j1234', '5678.png', '黃狗', 21),
-('KIOLLLL', 'j2345', '5678.png', '胖狗', 24),
-('KIOLLLL', 'lol', '5678.png', '大胖狗', 51);
+INSERT INTO `pets` (`user_id`, `pet_name`, `pet_photo`, `pet_breed`, `created_time`, `updated_time`, `pet_id`) VALUES
+('U751dd717d052680824fd250ddb7a7a55', 'Golden', 'cde.png', '黃金獵犬', '2023-04-17 16:37:08', '0000-00-00 00:00:00', 1),
+('1099', 'piggy', '5678.png', '吉娃娃', '2023-04-18 15:23:00', '0000-00-00 00:00:00', 2),
+('POPO', 'Lion', 'iiii.png', '貴賓狗', '2023-04-18 15:46:41', '0000-00-00 00:00:00', 3),
+('oljimmm', 'jimmy', '5678.png', '吉娃娃', '2023-04-18 15:25:31', '0000-00-00 00:00:00', 4),
+('U751dd717d052680824fd250ddb7a7a55', 'KOKO', '1234.png', '邊牧', '2023-04-17 16:30:34', '0000-00-00 00:00:00', 5),
+('123', 'nini2', '2.jpg', 'black', '2023-04-19 15:02:15', '2023-04-19 15:03:52', 6);
 
 -- --------------------------------------------------------
 
 --
--- 資料表結構 `user`
+-- 資料表結構 `pets_emotions`
 --
 
-CREATE TABLE `user` (
-  `user_id` varchar(100) NOT NULL
+CREATE TABLE `pets_emotions` (
+  `pet_emotion_id` int(11) NOT NULL,
+  `pet_id` int(11) NOT NULL,
+  `emotion_id` int(11) NOT NULL,
+  `pet_emotion_img` varchar(100) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- 傾印資料表的資料 `user`
+-- 傾印資料表的資料 `pets_emotions`
 --
 
-INSERT INTO `user` (`user_id`) VALUES
-('0000'),
-('1'),
-('11'),
-('12345'),
-('123456'),
-('188'),
-('4040'),
-('5'),
-('6'),
-('aaa'),
-('aaaa'),
-('abc'),
-('ijjm1122'),
-('ohya'),
-('popo'),
-('U751dd717d052680824fd250ddb7a7a55'),
-('U8f511f37ee2064e1868f50fb8082dd9f');
+INSERT INTO `pets_emotions` (`pet_emotion_id`, `pet_id`, `emotion_id`, `pet_emotion_img`) VALUES
+(1, 1, 1, '1.jpg'),
+(2, 1, 2, '2.jpg'),
+(3, 1, 1, '3.jpg');
+
+-- --------------------------------------------------------
+
+--
+-- 資料表結構 `users`
+--
+
+CREATE TABLE `users` (
+  `user_id` varchar(100) NOT NULL,
+  `created_time` datetime NOT NULL DEFAULT current_timestamp(),
+  `updated_time` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- 傾印資料表的資料 `users`
+--
+
+INSERT INTO `users` (`user_id`, `created_time`, `updated_time`) VALUES
+('12345', '2023-04-16 17:50:49', '2023-04-16 17:50:49'),
+('123456', '2023-04-17 13:30:03', '2023-04-17 13:30:03'),
+('4040', '2023-04-17 13:34:43', '2023-04-17 13:34:43'),
+('aaa', '2023-04-18 15:25:31', '2023-04-18 15:25:31'),
+('abc', '2023-04-16 17:46:53', '2023-04-16 17:46:53'),
+('ijjm1122', '2023-04-18 15:46:41', '2023-04-18 15:46:41'),
+('ohya', '2023-04-17 13:37:17', '2023-04-17 13:37:17'),
+('popo', '2023-04-18 10:03:42', '2023-04-18 10:03:42'),
+('U751dd717d052680824fd250ddb7a7a55', '2023-04-17 16:17:18', '2023-04-17 16:17:18'),
+('U8f511f37ee2064e1868f50fb8082dd9f', '2023-04-17 13:50:42', '2023-04-17 13:50:42');
 
 --
 -- 已傾印資料表的索引
 --
 
 --
--- 資料表索引 `emotion`
+-- 資料表索引 `emotions`
 --
-ALTER TABLE `emotion`
+ALTER TABLE `emotions`
   ADD PRIMARY KEY (`emotion_id`);
 
 --
--- 資料表索引 `pet`
+-- 資料表索引 `pets`
 --
-ALTER TABLE `pet`
+ALTER TABLE `pets`
   ADD PRIMARY KEY (`pet_id`);
 
 --
--- 資料表索引 `user`
+-- 資料表索引 `pets_emotions`
 --
-ALTER TABLE `user`
+ALTER TABLE `pets_emotions`
+  ADD PRIMARY KEY (`pet_emotion_id`);
+
+--
+-- 資料表索引 `users`
+--
+ALTER TABLE `users`
   ADD PRIMARY KEY (`user_id`);
 
 --
@@ -163,16 +152,22 @@ ALTER TABLE `user`
 --
 
 --
--- 使用資料表自動遞增(AUTO_INCREMENT) `emotion`
+-- 使用資料表自動遞增(AUTO_INCREMENT) `emotions`
 --
-ALTER TABLE `emotion`
-  MODIFY `emotion_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+ALTER TABLE `emotions`
+  MODIFY `emotion_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
--- 使用資料表自動遞增(AUTO_INCREMENT) `pet`
+-- 使用資料表自動遞增(AUTO_INCREMENT) `pets`
 --
-ALTER TABLE `pet`
-  MODIFY `pet_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=52;
+ALTER TABLE `pets`
+  MODIFY `pet_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+
+--
+-- 使用資料表自動遞增(AUTO_INCREMENT) `pets_emotions`
+--
+ALTER TABLE `pets_emotions`
+  MODIFY `pet_emotion_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
