@@ -21,8 +21,12 @@ def handle_message(event):
     message = event.message.text
     text = "需要幫忙嗎～"
     user_id = event.source.user_id
+    ifUpdate = pet.update_pet(user_id, message)
+    print(ifUpdate)
     creatPetStep = pet.check_create_pet(user_id)
-    if creatPetStep:
+    if ifUpdate:
+        text = ifUpdate
+    elif creatPetStep:
         text = pet.create_pet(user_id, creatPetStep, message)
     elif message == "新增資料":
         pet.start_create_pet(user_id)
@@ -89,8 +93,20 @@ def handle_message(event):
 @handler.add(PostbackEvent)
 def handle_message(event):
     s = event.postback.data
-    match = re.search(r'^(\d+).*更改名字$', s)
-    if match:
-        num = int(match.group(1))
-        print(num)  # 輸出 1
+    user_id = event.source.user_id
+    matchs = []
+    matchs.append(re.search(r'^(\d+).*(更改照片)$', s))
+    matchs.append(re.search(r'^(\d+).*(更改名字)$', s))
+    matchs.append(re.search(r'^(\d+).*(更改品種)$', s))
+    matchs.append(re.search(r'^(\d+).*(刪除)$', s))
+    for i, match in enumerate(matchs):
+        if match:
+            num = int(match.group(1))
+            print(num)  # 輸出 1
+            pet.start_update_pete(user_id, i+1, num)
+            print(i+1)
+            line_bot_api.reply_message(
+                event.reply_token,
+                TextSendMessage(match.group(2))
+            )
     print(s)

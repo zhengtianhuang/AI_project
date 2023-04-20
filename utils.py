@@ -1,5 +1,5 @@
 import requests
-from database import append_pet, user_id_exists
+from database import append_pet, user_id_exists, update_pet
 import time
 from pathlib import Path
 import os
@@ -75,11 +75,32 @@ def spider(latitude, longitude):
 class PetCreator:
     def __init__(self):
         self.steps = {}
+        self.updateCol = {}
+        self.updateNum = {}
         self.breed = {}
         self.name = {}
 
+    def start_update_pete(self, user_id, col, num):
+        self.updateCol[user_id] = col
+        self.updateNum[user_id] = num
+
     def start_create_pet(self, user_id):
         self.steps[user_id] = 1
+
+    def update_pet(self, user_id, data):
+
+        if user_id not in self.updateCol:
+            return 0
+        if self.updateCol[user_id] == 0:
+            return 0
+        col_name = "pet_photo"
+        if self.updateCol[user_id] == 2:
+            col_name = "pet_name"
+        if self.updateCol[user_id] == 3:
+            col_name = "pet_breed"
+        self.updateCol[user_id] = 0
+        update_pet(col_name, data, user_id, self.updateNum[user_id])
+        return f"成功更改{col_name}"
 
     def check_create_pet(self, user_id):
         if user_id not in self.steps:

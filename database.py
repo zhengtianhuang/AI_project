@@ -89,16 +89,29 @@ def search_pet(user_id):
     # 按用户ID查询宠物信息
     query = "SELECT `pet_name`, `pet_photo`, `pet_breed` FROM pets WHERE user_id = %s"
     cursor.execute(query, (user_id))
-
     # 获取查询结果
     result = cursor.fetchall()
-
     # 输出查询结果
     for row in result:
         print("Pet name: {}, photo: {}, breed: {}".format(
             row[0], row[1], row[2]))
-
     # 关闭数据库连接
     cursor.close()
     db.close()
     return result
+
+
+def update_pet(column_name, data, user_id, num):
+    db = connect_database()
+    cursor = db.cursor()
+    query = "UPDATE pets SET {}=%s WHERE pet_id=(SELECT pet_id FROM pets WHERE user_id = %s LIMIT 1 OFFSET %s)".format(
+        column_name)
+    cursor.execute(query, (data, user_id, num))
+
+    db.commit()  # 提交事务
+
+    cursor.close()
+    db.close()
+
+
+update_pet("pet_name", "piggy", '123', 1)
