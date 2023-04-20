@@ -5,6 +5,8 @@ from linebot.models import (
     TextSendMessage, FlexSendMessage, TextMessage, LocationMessage, MessageEvent, ImageMessage)
 from dotenv import load_dotenv
 import os
+from database import search_pet
+from pathlib import Path
 # 載入 .env 文件中的環境變數
 load_dotenv("secret.env")
 # 使用 os 模組獲取環境變數的值
@@ -19,16 +21,30 @@ pet = PetCreator()
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
     message = event.message.text
+    text = "需要幫忙嗎～"
     user_id = event.source.user_id
     creatPetStep = pet.check_create_pet(user_id)
     if creatPetStep:
-        message = pet.create_pet(user_id, creatPetStep, message)
-    if message == "新增資料":
+        text = pet.create_pet(user_id, creatPetStep, message)
+    elif message == "新增資料":
         pet.start_create_pet(user_id)
-        message = "請輸入寵物名字"
+        text = "請輸入寵物名字"
+    elif message == "寵物資料":
+        petTemplate = templates()
+        result = search_pet(user_id)
+        for row in result:
+            imgUrl = os.path.join(
+                "https://5ad7-175-182-175-165.ngrok-free.app", 'static/img', row[1])
+            petTemplate.add_pet_bubble(imgUrl, row[0], row[2], "無", "未新增")
+            print(imgUrl)
+        line_bot_api.reply_message(
+            event.reply_token,
+            FlexSendMessage("flex", petTemplate.template)
+        )
+        return
     line_bot_api.reply_message(
         event.reply_token,
-        TextSendMessage(text=message)
+        TextSendMessage(text=text)
     )
 
 

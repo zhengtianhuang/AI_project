@@ -100,6 +100,7 @@ class PetCreator:
         with open(photo_path, 'wb') as f:
             for chunk in content.iter_content():
                 f.write(chunk)
+        return filename
 
     def create_pet(self, user_id, step, data):
         if step == 2:
@@ -118,6 +119,9 @@ class PetCreator:
 
     def save_pet_img(self, user_id, img_id, content):
         self.steps[user_id] = 0
-        self._save_img(img_id, content)
+        file_name = self._save_img(img_id, content)
         print(f"{user_id},{self.name[user_id]},{self.breed[user_id]}")
+        user_id_exists(user_id)
+        append_pet(user_id, self.name[user_id],
+                   file_name, self.breed[user_id])
         return (f"名字：{self.name[user_id]},品種：{self.breed[user_id]}")
