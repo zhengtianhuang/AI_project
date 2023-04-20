@@ -10,11 +10,8 @@ from pathlib import Path
 # 載入 .env 文件中的環境變數
 load_dotenv("secret.env")
 # 使用 os 模組獲取環境變數的值
-# handler = WebhookHandler(os.getenv('CHANNEL_ACCESS_TOKEN'))
-# line_bot_api = LineBotApi(os.getenv('CHANNEL_SECRET'))
-handler = WebhookHandler('adef5f3ce019ca875e5fe10c1dff3b15')
-line_bot_api = LineBotApi(
-    '80rOecVLLMFyO6yOiljvHWK2UA6Nsq02z2dssrX0Ch0loc1s0byACoyHn1gMLHdGLnMvinAd8zJUkg2zXYkxF6EE35G2rN/cRDXuUQpOIGhRjjeKXM9RRVQR5evVpVS/5O3Nqc2Q/9bCYdXwo20C+gdB04t89/1O/w1cDnyilFU=')
+handler = WebhookHandler(os.getenv('CHANNEL_ACCESS_TOKEN'))
+line_bot_api = LineBotApi(os.getenv('CHANNEL_SECRET'))
 pet = PetCreator()
 
 
@@ -34,7 +31,7 @@ def handle_message(event):
         result = search_pet(user_id)
         for row in result:
             imgUrl = os.path.join(
-                "https://5ad7-175-182-175-165.ngrok-free.app", 'static/img', row[1])
+                os.getenv('WEBHOOK_URL'), 'static/img', row[1])
             petTemplate.add_pet_bubble(imgUrl, row[0], row[2], "無", "未新增")
             print(imgUrl)
         line_bot_api.reply_message(
