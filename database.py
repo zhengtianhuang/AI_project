@@ -114,4 +114,14 @@ def update_pet(column_name, data, user_id, num):
     db.close()
 
 
-update_pet("pet_name", "piggy", '123', 1)
+def delete_pet(user_id, num):
+    db = connect_database()
+    cursor = db.cursor()
+    query = "DELETE FROM pets WHERE pet_id=(SELECT pet_id FROM pets WHERE user_id = %s LIMIT 1 OFFSET %s)"
+    cursor.execute(query, (user_id, num))
+    db.commit()  # 提交事务
+    cursor.close()
+    db.close()
+
+
+# delete_pet("123", 1)

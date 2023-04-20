@@ -5,7 +5,7 @@ from linebot.models import (
     TextSendMessage, FlexSendMessage, TextMessage, LocationMessage, MessageEvent, ImageMessage, PostbackEvent)
 from dotenv import load_dotenv
 import os
-from database import search_pet
+from database import search_pet, delete_pet
 from pathlib import Path
 import re
 # 載入 .env 文件中的環境變數
@@ -22,7 +22,7 @@ def handle_message(event):
     text = "需要幫忙嗎～"
     user_id = event.source.user_id
     ifUpdate = pet.update_pet(user_id, message)
-    print(ifUpdate)
+    # print(ifUpdate)
     creatPetStep = pet.check_create_pet(user_id)
     if ifUpdate:
         text = ifUpdate
@@ -34,16 +34,18 @@ def handle_message(event):
     elif message == "寵物資料":
         petTemplate = templates()
         result = search_pet(user_id)
-        for row in result:
-            imgUrl = os.path.join(
-                os.getenv('WEBHOOK_URL'), 'static/img', row[1])
-            petTemplate.add_pet_bubble(imgUrl, row[0], row[2], "無", "未新增")
-            print(imgUrl)
-        line_bot_api.reply_message(
-            event.reply_token,
-            FlexSendMessage("flex", petTemplate.template)
-        )
-        return
+        if len(result) > 0:
+            for row in result:
+                imgUrl = os.path.join(
+                    os.getenv('WEBHOOK_URL'), 'static/img', row[1])
+                petTemplate.add_pet_bubble(imgUrl, row[0], row[2], "無", "未新增")
+                print(imgUrl)
+            line_bot_api.reply_message(
+                event.reply_token,
+                FlexSendMessage("flex", petTemplate.template)
+            )
+            return
+        text = "查無資料"
     line_bot_api.reply_message(
         event.reply_token,
         TextSendMessage(text=text)
@@ -76,14 +78,19 @@ def handle_message(event):
     message = "cool~"
     user_id = event.source.user_id
     if isinstance(event.message, ImageMessage):
+        image_id = event.message.id
         creatPetStep = pet.check_create_pet(user_id)
         if creatPetStep == 4:
             # 获取图片 ID 和文件名
-            image_id = event.message.id
             # 使用 LineBot SDK 下载图片
             content = line_bot_api.get_message_content(image_id)
             print(content)
             message = pet.save_pet_img(user_id, image_id, content)
+        elif pet.update_pet(user_id, "隨便填") == "這不是圖片":
+            # 使用 LineBot SDK 下载图片
+            content = line_bot_api.get_message_content(image_id)
+            pet.update_pet_img(user_id, image_id, content)
+            message = "成功更改"
     line_bot_api.reply_message(
         event.reply_token,
         TextSendMessage(message)
@@ -98,7 +105,6 @@ def handle_message(event):
     matchs.append(re.search(r'^(\d+).*(更改照片)$', s))
     matchs.append(re.search(r'^(\d+).*(更改名字)$', s))
     matchs.append(re.search(r'^(\d+).*(更改品種)$', s))
-    matchs.append(re.search(r'^(\d+).*(刪除)$', s))
     for i, match in enumerate(matchs):
         if match:
             num = int(match.group(1))
@@ -109,4 +115,12 @@ def handle_message(event):
                 event.reply_token,
                 TextSendMessage(match.group(2))
             )
+    match = re.search(r'^(\d+).*(刪除)$', s)
+    if match:
+        num = int(match.group(1))
+        delete_pet(user_id, num)
+        line_bot_api.reply_message(
+            event.reply_token,
+            TextSendMessage("成功刪除")
+        )
     print(s)

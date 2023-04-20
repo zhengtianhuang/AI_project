@@ -1,5 +1,5 @@
 import requests
-from database import append_pet, user_id_exists, update_pet
+from database import append_pet, user_id_exists, update_pet, delete_pet
 import time
 from pathlib import Path
 import os
@@ -93,10 +93,12 @@ class PetCreator:
             return 0
         if self.updateCol[user_id] == 0:
             return 0
-        col_name = "pet_photo"
-        if self.updateCol[user_id] == 2:
+        col_name = "pet_name"
+        if self.updateCol[user_id] == 1:
+            return "這不是圖片"
+        elif self.updateCol[user_id] == 2:
             col_name = "pet_name"
-        if self.updateCol[user_id] == 3:
+        elif self.updateCol[user_id] == 3:
             col_name = "pet_breed"
         self.updateCol[user_id] = 0
         update_pet(col_name, data, user_id, self.updateNum[user_id])
@@ -141,8 +143,15 @@ class PetCreator:
     def save_pet_img(self, user_id, img_id, content):
         self.steps[user_id] = 0
         file_name = self._save_img(img_id, content)
-        print(f"{user_id},{self.name[user_id]},{self.breed[user_id]}")
+        # print(f"{user_id},{self.name[user_id]},{self.breed[user_id]}")
         user_id_exists(user_id)
         append_pet(user_id, self.name[user_id],
                    file_name, self.breed[user_id])
         return (f"名字：{self.name[user_id]},品種：{self.breed[user_id]}")
+    def update_pet_img(self,user_id,img_id,content):
+        if self.updateCol[user_id] != 1:
+            return 0
+        self.updateCol[user_id] = 0
+        file_name = self._save_img(img_id, content)
+        update_pet("pet_photo", file_name, user_id, self.updateNum[user_id])
+        
