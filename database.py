@@ -13,14 +13,16 @@ def connect_database():
     )
     return db
 
-# if cursor.fetchall() find nothing return () -> empty tuple
-# cursor.fetchall() find data return ([])  -> list in tuple
+
+def now_datetime():
+    now = datetime.now()
+    formatted_time = now.strftime('%Y-%m-%d %H:%M:%S')
+    return formatted_time
 
 
-def execute_sql(sql, args=None):
-    # used for SELECT method
+def user_id_exists(user_id):
     db = connect_database()
-    cursor = db.cursor()
+    cursor = db.cursor()  # 連線後的游標
     try:
         with cursor:
             # Check if user_id exists in the database
@@ -47,15 +49,15 @@ def execute_sql(sql, args=None):
                     print("資料加入DB失敗")
     except Exception as e:
         db.rollback()
+        print(f'SQL 執行失敗: {e}')
     finally:
         cursor.close()  # turn off cursor
         db.close()
 
 
-def execute_sql_2(sql, args=None):
-    # used for INSERT, UPDATE, DELETE method
+def append_pet(user_id, pet_name, pet_photo, pet_breed):
     db = connect_database()
-    cursor = db.cursor()
+    cursor = db.cursor()  # 連線後的游標
     try:
         with cursor:
             # check whether data exists in database
@@ -74,9 +76,9 @@ def execute_sql_2(sql, args=None):
                 print("資料加入DB成功")
     except Exception as e:
         db.rollback()
-        return 0
+        print(f'SQL 執行失敗: {e}')
     finally:
-        cursor.close()
+        cursor.close()  # turn off cursor
         db.close()
 
 
