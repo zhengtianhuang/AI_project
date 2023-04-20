@@ -27,8 +27,8 @@ def handle_message(event):
 
 @handler.add(MessageEvent, message=LocationMessage)
 def handle_location(event):
-    restaurants = spider, (event.message.latitude, event.message.longitude)
-    print(restaurants)
+    restaurants = spider(event.message.latitude, event.message.longitude)
+    # print(restaurants)
     rtTemplate = templates()
     for i, d in enumerate(restaurants):
         try:

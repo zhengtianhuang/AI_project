@@ -1,4 +1,6 @@
 from json import load
+from pathlib import Path
+bubblePath = Path(__file__).resolve().parent/'static/json/bubbles'
 
 
 class templates():
@@ -9,9 +11,8 @@ class templates():
         }
 
     def add_restaurant_bubble(self, image, name, rating, add, isOpen):
-        print("==="*20)
         bubble = load(
-            open('./json/bubbles/restaurantBubble.json', 'r', encoding='utf-8'))
+            open(f'{bubblePath}/restaurantBubble.json', 'r', encoding='utf-8'))
         # print(bubble)
         bubble["hero"]["url"] = str(image)
         bubble["body"]["contents"][0]["text"] = str(name)
