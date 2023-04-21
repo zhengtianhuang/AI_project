@@ -86,7 +86,7 @@ def handle_message(event):
             content = line_bot_api.get_message_content(image_id)
             print(content)
             message = pet.save_pet_img(user_id, image_id, content)
-        elif pet.update_pet(user_id, "隨便填") == "這不是圖片":
+        elif pet.update_pet(user_id, "他傳了圖片！") == "這不是圖片":
             # 使用 LineBot SDK 下载图片
             content = line_bot_api.get_message_content(image_id)
             pet.update_pet_img(user_id, image_id, content)
