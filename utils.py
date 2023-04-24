@@ -94,7 +94,7 @@ class PetCreator:
         if self.updateCol[user_id] == 0:
             return 0
         if data == "他傳了圖片！":
-            return 0
+            return "ok"
         col_name = "pet_name"
         if self.updateCol[user_id] == 1:
             return "這不是圖片"
