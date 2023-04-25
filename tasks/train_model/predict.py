@@ -6,7 +6,7 @@ import cv2
 filePath = Path(__file__).resolve().parent
 
 # 載入模型
-model = tf.keras.models.load_model(filePath/'63.h5', compile=False)
+model = tf.keras.models.load_model(filePath/'0425.h5', compile=False)
 
 # 設定圖片尺寸及通道數
 img_size = (48, 48)
