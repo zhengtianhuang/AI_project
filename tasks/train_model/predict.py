@@ -10,26 +10,30 @@ def showImg(img):
     cv2.waitKey()
 
 
-# 加載已經訓練好的模型
-model = load_model(filePath/'0425.h5')
+def emotion_analyze(img_url):
+    # 加載已經訓練好的模型
+    model = load_model(filePath/'0426.h5')
 
-# 讀取新的狗圖像
-img = cv2.imread(str(filePath/'img/0fmy0dTY2aV0kGQ8UEDgWDrbGyxnac904.jpeg'))
-# showImg(img)
+    # 讀取新的狗圖像
+    img = cv2.imread(img_url)
+    # showImg(img)
 
-img = cv2.resize(img, (150, 150))
-# showImg(img)
+    img = cv2.resize(img, (224, 224))
+    # showImg(img)
 
-# 預處理圖像
-img = img.astype('float32') / 255.0
-# showImg(img)
+    # 預處理圖像
+    img = img.astype('float32') / 255.0
+    # showImg(img)
 
-img = np.expand_dims(img, axis=0)
-# print(model.summary())
-# img = np.reshape(img, (-1, 4 * 4 * 512))
-# showImg(img)
+    img = np.expand_dims(img, axis=0)
+    # print(model.summary())
+    # img = np.reshape(img, (-1, 4 * 4 * 512))
+    # showImg(img)
+    # 進行預測
+    predictions = model.predict(img)
+    emo = ["angry", "happy", "relax", "sad"]
+    print(predictions)
+    return emo[np.argmax(predictions)]
 
 
-# 進行預測
-predictions = model.predict(img)
-print(predictions)
+# emotion_analyze(str(filePath/'img/0RXraPIKC00Dz1qkuMbj8XbuR80g5Z893.jpeg'))
