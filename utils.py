@@ -112,9 +112,9 @@ class PetCreator:
         elif self.steps[user_id] == 1:
             self.steps[user_id] = 2
         elif self.steps[user_id] == 2:
-            self.steps[user_id] = 3
-        elif self.steps[user_id] == 3:
-            return 4
+            return 3
+        # elif self.steps[user_id] == 3:
+        #     return 4
         return self.steps[user_id]
 
     def _save_img(self, id, content):
@@ -130,11 +130,11 @@ class PetCreator:
     def create_pet(self, user_id, step, data):
         if step == 2:
             self.name[user_id] = data
-            return f"你的寵物名字是{data},請輸入品種"
+            return f"你的寵物名字是{data},請傳一張照片"
+        # elif step == 3:
+        #     self.breed[user_id] = data
+        #     return f"品種為{data},請傳一張照片！"
         elif step == 3:
-            self.breed[user_id] = data
-            return f"品種為{data},請傳一張照片！"
-        elif step == 4:
             # user_id_exists(user_id)
             # append_pet(user_id, self.name[user_id],
             #            data, self.breed[user_id])
@@ -146,14 +146,39 @@ class PetCreator:
         self.steps[user_id] = 0
         file_name = self._save_img(img_id, content)
         # print(f"{user_id},{self.name[user_id]},{self.breed[user_id]}")
+        imgUrl = os.path.join(
+            os.getenv('WEBHOOK_URL'), 'static/img', file_name)
+        self.breed[user_id] = search_image(imgUrl)
         user_id_exists(user_id)
         append_pet(user_id, self.name[user_id],
                    file_name, self.breed[user_id])
         return (f"名字：{self.name[user_id]},品種：{self.breed[user_id]}")
-    def update_pet_img(self,user_id,img_id,content):
+
+    def update_pet_img(self, user_id, img_id, content):
         if self.updateCol[user_id] != 1:
             return 0
         self.updateCol[user_id] = 0
         file_name = self._save_img(img_id, content)
         update_pet("pet_photo", file_name, user_id, self.updateNum[user_id])
-        
+
+
+def search_image(url):
+    params = {
+        "engine": "google_lens",
+        "url": url,
+        "api_key": "7bec1da4ca2d934e97d542f96113cad7e2b7052e13098b7741416c75e8221073",
+        "hl": "zh-tw"
+    }
+
+    url = "https://serpapi.com/search.json?engine=google_lens&url=" + url
+
+    response = requests.get(url, data=params)
+    response.encoding = "utf-8"
+
+    content = response.json()
+    print(url)
+    try:
+        breed = (content['knowledge_graph'][0])['title']
+    except:
+        breed = "未知"
+    return breed

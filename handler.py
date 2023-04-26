@@ -80,7 +80,7 @@ def handle_message(event):
     if isinstance(event.message, ImageMessage):
         image_id = event.message.id
         creatPetStep = pet.check_create_pet(user_id)
-        if creatPetStep == 4:
+        if creatPetStep == 3:
             # 获取图片 ID 和文件名
             # 使用 LineBot SDK 下载图片
             content = line_bot_api.get_message_content(image_id)
