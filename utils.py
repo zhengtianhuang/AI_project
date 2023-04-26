@@ -1,4 +1,6 @@
 import requests
+from google.cloud import vision_v1
+from google.cloud.vision_v1 import types
 from database import append_pet, user_id_exists, update_pet, delete_pet
 import time
 from pathlib import Path
@@ -182,3 +184,63 @@ def search_image(url):
     except:
         breed = "未知"
     return breed
+
+
+url = "https://fdaa-210-242-167-237.ngrok-free.app/static/img/18042841890258-1682478441.jpg"
+
+
+def search_image(url):
+
+    params = {
+        "engine": "google_lens",
+        "url": url,
+        "api_key": "7bec1da4ca2d934e97d542f96113cad7e2b7052e13098b7741416c75e8221073",
+        "hl": "zh-tw"
+    }
+
+    request_url = "https://serpapi.com/search.json?engine=google_lens&url=" + url
+
+    response = requests.get(request_url, data=params)
+    response.encoding = "utf-8"
+
+    content = response.json()
+    print(content)
+    try:
+        breed = (content['knowledge_graph'][0])['title']
+    except:
+        breed = "未知"
+    return breed
+
+
+def image_content(image_url):
+    # 設定您的Google Cloud認證環境變數
+    os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "./zhengtian-488e92363e42.json"
+
+    # 建立Vision API客戶端
+    client = vision_v1.ImageAnnotatorClient()
+
+    # 得到圖片名稱
+    # image_name = url.split('/')
+
+    # 讀取本地圖片文件
+    with open(image_url, 'rb') as image_file:
+        content = image_file.read()
+
+    # 建立Image類型的protobuf對象
+    image = types.Image(content=content)
+
+    # 使用Vision API進行圖像搜尋
+    response = client.label_detection(image=image)
+    labels = response.label_annotations
+
+    # 過濾出狗的品種
+    for label in labels:
+        if label.description == "Dog breed":
+            return 1
+            #     return search_image(url)
+            #     break
+    return 0
+
+
+print(image_content(
+    "./richmenu.png"))
