@@ -3,6 +3,7 @@ import numpy as np
 import os
 import matplotlib.pyplot as plt
 from pathlib import Path
+print(tf.version)
 filePath = Path(__file__).resolve().parent
 root_dir = filePath/'content/Dog Emotion'
 base_model = tf.keras.applications.InceptionV3(input_shape=(224, 224, 3),
