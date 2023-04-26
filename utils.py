@@ -242,5 +242,5 @@ def image_content(image_url):
     return 0
 
 
-print(image_content(
-    "./richmenu.png"))
+# print(image_content(
+#     "./richmenu.png"))
