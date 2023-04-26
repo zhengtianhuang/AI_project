@@ -48,3 +48,4 @@ model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.0001),
 model.fit(img_generator_flow_train,
           validation_data=img_generator_flow_valid,
           steps_per_epoch=10, epochs=100)
+model.save("0426.h5")
