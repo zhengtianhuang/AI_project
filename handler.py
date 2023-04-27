@@ -1,5 +1,9 @@
+# handler.py
+'''
+引用庫
+'''
 from utils import (spider, PetCreator, image_content)
-from templates import templates
+from templates import Templates
 from linebot import (LineBotApi, WebhookHandler)
 from linebot.models import (
     TextSendMessage, FlexSendMessage, TextMessage, LocationMessage, MessageEvent, ImageMessage, PostbackEvent)
@@ -8,34 +12,42 @@ import os
 from database import search_pet, delete_pet
 from pathlib import Path
 import re
-from tasks import train_model
-from tasks.train_model.predict import emotion_analyze
+from Tasks import train_model
+from Tasks.train_model.predict import emotion_analyze
+'''
+變數區
+'''
 # 載入 .env 文件中的環境變數
 load_dotenv("secret.env")
 # 使用 os 模組獲取環境變數的值
 handler = WebhookHandler(os.getenv('CHANNEL_ACCESS_TOKEN'))
 line_bot_api = LineBotApi(os.getenv('CHANNEL_SECRET'))
+img_path = Path(__file__).resolve().parent/'static/img'
 pet = PetCreator()
-imgPath = Path(__file__).resolve().parent/'static/img'
+'''
+函式區
+'''
 
 
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
+    '''
+    處理文字訊息
+    '''
     message = event.message.text
-    text = "需要幫忙嗎～"
     user_id = event.source.user_id
-    ifUpdate = pet.update_pet(user_id, message)
-    # print(ifUpdate)
+    return_text = "需要幫忙嗎～"
+    if_update = pet.update_pet(user_id, message)
     creatPetStep = pet.check_create_pet(user_id)
-    if ifUpdate:
-        text = ifUpdate
+    if if_update:
+        return_text = if_update
     elif creatPetStep:
-        text = pet.create_pet(user_id, creatPetStep, message)
+        return_text = pet.create_pet(user_id, message)
     elif message == "新增資料":
         pet.start_create_pet(user_id)
-        text = "請輸入寵物名字"
+        return_text = "請輸入寵物名字"
     elif message == "寵物資料":
-        petTemplate = templates()
+        petTemplate = Templates()
         result = search_pet(user_id)
         if len(result) > 0:
             for row in result:
@@ -48,18 +60,18 @@ def handle_message(event):
                 FlexSendMessage("flex", petTemplate.template)
             )
             return
-        text = "查無資料"
+        return_text = "查無資料"
     line_bot_api.reply_message(
         event.reply_token,
-        TextSendMessage(text=text)
+        TextSendMessage(text=return_text
+                        )
     )
 
 
 @handler.add(MessageEvent, message=LocationMessage)
 def handle_location(event):
     restaurants = spider(event.message.latitude, event.message.longitude)
-    # print(restaurants)
-    rtTemplate = templates()
+    rtTemplate = Templates()
     for i, d in enumerate(restaurants):
         try:
             rtTemplate.add_restaurant_bubble(
@@ -97,8 +109,8 @@ def handle_message(event):
         else:
             content = line_bot_api.get_message_content(image_id)
             img_name = pet._save_img(user_id, content)
-            if image_content(imgPath/img_name):
-                message = emotion_analyze(str(imgPath/img_name))
+            if image_content(img_path/img_name):
+                message = emotion_analyze(str(img_path/img_name))
 
     line_bot_api.reply_message(
         event.reply_token,

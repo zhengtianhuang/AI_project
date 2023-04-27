@@ -1,11 +1,21 @@
+# utils.py
+'''
+引用庫
+'''
 import requests
 from google.cloud import vision_v1
 from google.cloud.vision_v1 import types
-from database import append_pet, user_id_exists, update_pet, delete_pet
+from database import append_pet, user_id_exists, update_pet
 import time
 from pathlib import Path
 import os
+'''
+變數區
+'''
 staticPath = Path(__file__).resolve().parent/'static'
+'''
+函式區
+'''
 
 
 def spider(latitude, longitude):
@@ -38,43 +48,18 @@ def spider(latitude, longitude):
                 resInfoAll.append(resInfo)
     else:
         print("Request failed.")
-    # print(resInfoAll)
     return resInfoAll
 
 
-# step = {}
-
-
-# def startCreatePet(userId):
-#     global step
-#     step[userId] = 1
-
-
-# def checkCreatePet(userId):
-#     global step
-#     if userId not in step:
-#         return 0
-#     elif step[userId] == 1:
-#         step[userId] = 2
-#     elif step[userId] == 2:
-#         step[userId] = 3
-#     elif step[userId] == 3:
-#         step[userId] = 0
-#         return 4
-#     return step[userId]
-
-
-# def creatPet(step, data):
-#     if step == 2:
-#         return f"你的寵物名字是{data},請輸入品種"
-#     elif step == 3:
-#         return f"品種為{data},請傳一張照片！"
-#     elif step == 4:
-#         return "真可愛！"
-#     else:
-#         return (f"發生錯誤step:{step}")
-
 class PetCreator:
+    '''
+    用於新增寵物以及更改寵物資料的流程控制
+    :ivar steps : 用於控制新增寵物流程
+    :ivar update_col : 用於控制更改寵物資料哪個欄位
+    :ivar updata_num : 判斷目前要做第幾隻寵物的資料更動
+    :ivar name : 用戶回傳的寵物名字
+    '''
+
     def __init__(self):
         self.steps = {}
         self.updateCol = {}
@@ -83,71 +68,94 @@ class PetCreator:
         self.name = {}
 
     def start_update_pete(self, user_id, col, num):
+        '''
+        開始更改寵物資料流程
+        :param user_id : line用戶id
+        :param col : 用於控制更改寵物資料哪個欄位
+        :param num : 判斷目前要做第幾隻寵物的資料更動
+
+        '''
         self.updateCol[user_id] = col
         self.updateNum[user_id] = num
 
     def start_create_pet(self, user_id):
+        '''
+        開始新增寵物流程
+        '''
         self.steps[user_id] = 1
 
     def update_pet(self, user_id, data):
-
+        '''
+        更改寵物資料
+        :param user_id : line用戶id
+        :param data : 要更改的資料,通常就是抓用戶傳的文字訊息,若是圖片訊息,data請傳入 "他傳了圖片！"
+        '''
+        col_name = "pet_name"
         if user_id not in self.updateCol:
             return 0
-        if self.updateCol[user_id] == 0:
+        elif self.updateCol[user_id] == 0:
             return 0
-        if data == "他傳了圖片！":
+        elif data == "他傳了圖片！":
             return "ok"
-        col_name = "pet_name"
-        if self.updateCol[user_id] == 1:
+        elif self.updateCol[user_id] == 1:  # 用戶按下更改圖片
             return "這不是圖片"
-        elif self.updateCol[user_id] == 2:
+        elif self.updateCol[user_id] == 2:  # 用戶按下更改名字
             col_name = "pet_name"
-        elif self.updateCol[user_id] == 3:
+        elif self.updateCol[user_id] == 3:  # 用戶按下更改品種
             col_name = "pet_breed"
-        self.updateCol[user_id] = 0
         update_pet(col_name, data, user_id, self.updateNum[user_id])
+        self.updateCol[user_id] = 0         # 更改完後回復狀態
         return f"成功更改{col_name}"
 
     def check_create_pet(self, user_id):
+        '''
+        確認目前新增寵物階段
+        :return self.steps[user_id] : 目前階段
+        '''
         if user_id not in self.steps:
             return 0
         elif self.steps[user_id] == 1:
             self.steps[user_id] = 2
         elif self.steps[user_id] == 2:
             return 3
-        # elif self.steps[user_id] == 3:
-        #     return 4
         return self.steps[user_id]
 
-    def _save_img(self, id, content):
+    def _save_img(self, img_id, content):
+        '''
+        將用戶傳的圖片保存到本地server
+        :param img_id : line給的圖片id
+        :param content : 圖片訊息內容
+        '''
         timestamp = str(int(time.time()))
-        # 将文件保存到本地文件系统
-        filename = f"{id}-{timestamp}.jpg"
+        filename = f"{img_id}-{timestamp}.jpg"
         photo_path = os.path.join(staticPath, 'img', filename)
         with open(photo_path, 'wb') as f:
             for chunk in content.iter_content():
                 f.write(chunk)
         return filename
 
-    def create_pet(self, user_id, step, data):
-        if step == 2:
+    def create_pet(self, user_id, data):
+        '''
+        新增一個寵物流程控制
+        :param user_id : line用戶id
+        :param data : 新增的資料內容,通常就是抓用戶傳的文字訊息
+        '''
+        if self.steps[user_id] == 2:
             self.name[user_id] = data
             return f"你的寵物名字是{data},請傳一張照片"
-        # elif step == 3:
-        #     self.breed[user_id] = data
-        #     return f"品種為{data},請傳一張照片！"
-        elif step == 3:
-            # user_id_exists(user_id)
-            # append_pet(user_id, self.name[user_id],
-            #            data, self.breed[user_id])
+        elif self.steps[user_id] == 3:
             return "你傳的不是圖片！"
         else:
-            return (f"發生錯誤step:{step}")
+            return (f"發生錯誤step:{self.steps[user_id]}")
 
     def save_pet_img(self, user_id, img_id, content):
+        '''
+        將寵物圖片存入本地server,檔名存入db
+        :param user_id : line用戶id
+        :param img_id : 
+        '''
         self.steps[user_id] = 0
         file_name = self._save_img(img_id, content)
-        # print(f"{user_id},{self.name[user_id]},{self.breed[user_id]}")
         imgUrl = os.path.join(
             os.getenv('WEBHOOK_URL'), 'static/img', file_name)
         self.breed[user_id] = search_image(imgUrl)
@@ -184,9 +192,6 @@ def search_image(url):
     except:
         breed = "未知"
     return breed
-
-
-url = "https://fdaa-210-242-167-237.ngrok-free.app/static/img/18042841890258-1682478441.jpg"
 
 
 def search_image(url):
@@ -237,10 +242,4 @@ def image_content(image_url):
     for label in labels:
         if label.description == "Dog breed":
             return 1
-            #     return search_image(url)
-            #     break
     return 0
-
-
-# print(image_content(
-#     "./richmenu.png"))

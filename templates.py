@@ -3,7 +3,7 @@ from pathlib import Path
 bubblePath = Path(__file__).resolve().parent/'static/json/bubbles'
 
 
-class templates():
+class Templates():
     def __init__(self):
         self.template = {
             "type": "carousel",

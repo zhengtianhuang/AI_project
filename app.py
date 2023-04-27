@@ -1,14 +1,20 @@
 # app.py
-# =============庫==================
+'''
+引用庫
+'''
 from flask import Flask, request, abort
 from linebot.exceptions import (
     InvalidSignatureError
 )
 # =============副程式==================
 from handler import handler
-# =============變數==================
+'''
+變數區
+'''
 app = Flask(__name__)
-# ==========main============
+'''
+主程式
+'''
 
 
 @app.route("/", methods=['GET'])
@@ -18,14 +24,12 @@ def test():
 
 @app.route("/callback", methods=['POST'])
 def callback():
-    # get X-Line-Signature header value
+    '''
+    處理linebot伺服器回傳data
+    '''
     signature = request.headers['X-Line-Signature']
-
-    # get request body as text
     body = request.get_data(as_text=True)
     app.logger.info("Request body: " + body)
-
-    # handle webhook body
     try:
         handler.handle(body, signature)
     except InvalidSignatureError:
