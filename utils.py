@@ -73,7 +73,6 @@ class PetCreator:
         :param user_id : line用戶id
         :param col : 用於控制更改寵物資料哪個欄位
         :param num : 判斷目前要做第幾隻寵物的資料更動
-
         '''
         self.updateCol[user_id] = col
         self.updateNum[user_id] = num
@@ -84,47 +83,59 @@ class PetCreator:
         '''
         self.steps[user_id] = 1
 
-    def update_pet(self, user_id, data):
+    def update_pet(self, user_id, data=0, img_id=0, content=0):
         '''
         更改寵物資料
         :param user_id : line用戶id
         :param data : 要更改的資料,通常就是抓用戶傳的文字訊息,若是圖片訊息,data請傳入 "他傳了圖片！"
+        :return 0   : 沒有要更新資料
+                其他 : 要回傳的文字訊息      
         '''
         col_name = "pet_name"
-        if user_id not in self.updateCol:
+        if user_id not in self.updateCol or self.updateCol[user_id] == 0:
             return 0
-        elif self.updateCol[user_id] == 0:
-            return 0
-        elif data == "他傳了圖片！":
-            return "ok"
         elif self.updateCol[user_id] == 1:  # 用戶按下更改圖片
-            return "這不是圖片"
+            if self._update_pet_img(user_id, img_id, content):
+                self.updateCol[user_id] = 0  # 更改完後回復初始階段
+                return "成功更改"
+            return "這不是圖片！"
         elif self.updateCol[user_id] == 2:  # 用戶按下更改名字
             col_name = "pet_name"
         elif self.updateCol[user_id] == 3:  # 用戶按下更改品種
             col_name = "pet_breed"
         update_pet(col_name, data, user_id, self.updateNum[user_id])
-        self.updateCol[user_id] = 0         # 更改完後回復狀態
+        self.updateCol[user_id] = 0  # 更改完後回復初始階段
         return f"成功更改{col_name}"
 
-    def check_create_pet(self, user_id):
+    def create_pet(self, user_id, data=0, img_id=0, content=0):
         '''
-        確認目前新增寵物階段
-        :return self.steps[user_id] : 目前階段
+        新增一個寵物流程控制
+        :param user_id : line用戶id
+        :param data : 新增的資料內容,通常就是抓用戶傳的文字訊息
+        :param img_id : line給的圖片id
+        :param content : 圖片訊息內容
         '''
-        if user_id not in self.steps:
+        if user_id not in self.steps or self.steps[user_id] == 0:
             return 0
-        elif self.steps[user_id] == 1:
-            self.steps[user_id] = 2
-        elif self.steps[user_id] == 2:
-            return 3
-        return self.steps[user_id]
+        elif self.steps[user_id] == 1:   # 第一階段輸入名字
+            self.steps[user_id] += 1
+            self.name[user_id] = data
+            return f"你的寵物名字是{data},請傳一張照片"
+        elif self.steps[user_id] == 2:   # 第二階段傳圖片
+            if self._save_pet_img(user_id, img_id, content):
+                self.steps[user_id] = 0  # 回復初始階段
+                return (f"名字：{self.name[user_id]},品種：{self.breed[user_id]}")
+            else:
+                return "你傳的不是圖片！"
+        else:
+            return (f"發生錯誤step:{self.steps[user_id]}")
 
     def _save_img(self, img_id, content):
         '''
         將用戶傳的圖片保存到本地server
         :param img_id : line給的圖片id
         :param content : 圖片訊息內容
+        :return    檔名 : 時間戳加img_id
         '''
         timestamp = str(int(time.time()))
         filename = f"{img_id}-{timestamp}.jpg"
@@ -134,27 +145,14 @@ class PetCreator:
                 f.write(chunk)
         return filename
 
-    def create_pet(self, user_id, data):
-        '''
-        新增一個寵物流程控制
-        :param user_id : line用戶id
-        :param data : 新增的資料內容,通常就是抓用戶傳的文字訊息
-        '''
-        if self.steps[user_id] == 2:
-            self.name[user_id] = data
-            return f"你的寵物名字是{data},請傳一張照片"
-        elif self.steps[user_id] == 3:
-            return "你傳的不是圖片！"
-        else:
-            return (f"發生錯誤step:{self.steps[user_id]}")
-
-    def save_pet_img(self, user_id, img_id, content):
+    def _save_pet_img(self, user_id, img_id, content):
         '''
         將寵物圖片存入本地server,檔名存入db
         :param user_id : line用戶id
-        :param img_id : 
+        :param img_id : line給的圖片id
         '''
-        self.steps[user_id] = 0
+        if img_id == 0:
+            return 0
         file_name = self._save_img(img_id, content)
         imgUrl = os.path.join(
             os.getenv('WEBHOOK_URL'), 'static/img', file_name)
@@ -162,14 +160,19 @@ class PetCreator:
         user_id_exists(user_id)
         append_pet(user_id, self.name[user_id],
                    file_name, self.breed[user_id])
-        return (f"名字：{self.name[user_id]},品種：{self.breed[user_id]}")
+        return 1
 
-    def update_pet_img(self, user_id, img_id, content):
-        if self.updateCol[user_id] != 1:
+    def _update_pet_img(self, user_id, img_id, content):
+        '''
+        更新寵物圖像
+        :param user_id : line用戶id
+        :param img_id : line給的圖片id
+        '''
+        if img_id == 0:
             return 0
-        self.updateCol[user_id] = 0
         file_name = self._save_img(img_id, content)
         update_pet("pet_photo", file_name, user_id, self.updateNum[user_id])
+        return 1
 
 
 def search_image(url):

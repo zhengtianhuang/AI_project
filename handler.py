@@ -36,13 +36,14 @@ def handle_message(event):
     '''
     message = event.message.text
     user_id = event.source.user_id
-    return_text = "需要幫忙嗎～"
+    return_text = "需要幫忙嗎～"  # 預設回傳文字
     if_update = pet.update_pet(user_id, message)
-    creatPetStep = pet.check_create_pet(user_id)
+    if_create = pet.create_pet(user_id, message)
+
     if if_update:
         return_text = if_update
-    elif creatPetStep:
-        return_text = pet.create_pet(user_id, message)
+    elif if_create:
+        return_text = if_create
     elif message == "新增資料":
         pet.start_create_pet(user_id)
         return_text = "請輸入寵物名字"
@@ -59,7 +60,6 @@ def handle_message(event):
                 event.reply_token,
                 FlexSendMessage("flex", petTemplate.template)
             )
-            return
         return_text = "查無資料"
     line_bot_api.reply_message(
         event.reply_token,
@@ -89,32 +89,27 @@ def handle_location(event):
 
 @handler.add(MessageEvent, message=ImageMessage)
 def handle_message(event):
-    # 获取图片消息内容
-    message = "這不是狗狗~"
+    return_text = "這不是狗狗~"
     user_id = event.source.user_id
     if isinstance(event.message, ImageMessage):
-        image_id = event.message.id
-        creatPetStep = pet.check_create_pet(user_id)
-        if creatPetStep == 3:
-            # 获取图片 ID 和文件名
-            # 使用 LineBot SDK 下载图片
-            content = line_bot_api.get_message_content(image_id)
-            print(content)
-            message = pet.save_pet_img(user_id, image_id, content)
-        elif pet.update_pet(user_id, "他傳了圖片！") == "ok":
-            # 使用 LineBot SDK 下载图片
-            content = line_bot_api.get_message_content(image_id)
-            pet.update_pet_img(user_id, image_id, content)
-            message = "成功更改"
+        img_id = event.message.id
+        content = line_bot_api.get_message_content(img_id)
+        if_update_pet = pet.update_pet(
+            user_id=user_id, img_id=img_id, content=content)
+        if_create_pet = pet.create_pet(
+            user_id=user_id, img_id=img_id, content=content)
+        if if_update_pet:
+            return_text = if_update_pet
+        elif if_create_pet:
+            return_text = if_create_pet
         else:
-            content = line_bot_api.get_message_content(image_id)
+            content = line_bot_api.get_message_content(img_id)
             img_name = pet._save_img(user_id, content)
             if image_content(img_path/img_name):
-                message = emotion_analyze(str(img_path/img_name))
-
+                return_text = emotion_analyze(str(img_path/img_name))
     line_bot_api.reply_message(
         event.reply_token,
-        TextSendMessage(message)
+        TextSendMessage(return_text)
     )
 
 
@@ -129,9 +124,7 @@ def handle_message(event):
     for i, match in enumerate(matchs):
         if match:
             num = int(match.group(1))
-            print(num)  # 輸出 1
             pet.start_update_pete(user_id, i+1, num)
-            print(i+1)
             line_bot_api.reply_message(
                 event.reply_token,
                 TextSendMessage(match.group(2))
@@ -144,4 +137,3 @@ def handle_message(event):
             event.reply_token,
             TextSendMessage("成功刪除")
         )
-    print(s)
