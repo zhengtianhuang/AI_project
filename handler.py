@@ -1,4 +1,4 @@
-from utils import (spider, PetCreator)
+from utils import (spider, PetCreator, image_content)
 from templates import templates
 from linebot import (LineBotApi, WebhookHandler)
 from linebot.models import (
@@ -8,12 +8,15 @@ import os
 from database import search_pet, delete_pet
 from pathlib import Path
 import re
+from tasks import train_model
+from tasks.train_model.predict import emotion_analyze
 # 載入 .env 文件中的環境變數
 load_dotenv("secret.env")
 # 使用 os 模組獲取環境變數的值
 handler = WebhookHandler(os.getenv('CHANNEL_ACCESS_TOKEN'))
 line_bot_api = LineBotApi(os.getenv('CHANNEL_SECRET'))
 pet = PetCreator()
+imgPath = Path(__file__).resolve().parent/'static/img'
 
 
 @handler.add(MessageEvent, message=TextMessage)
@@ -75,7 +78,7 @@ def handle_location(event):
 @handler.add(MessageEvent, message=ImageMessage)
 def handle_message(event):
     # 获取图片消息内容
-    message = "cool~"
+    message = "這不是狗狗~"
     user_id = event.source.user_id
     if isinstance(event.message, ImageMessage):
         image_id = event.message.id
@@ -91,6 +94,12 @@ def handle_message(event):
             content = line_bot_api.get_message_content(image_id)
             pet.update_pet_img(user_id, image_id, content)
             message = "成功更改"
+        else:
+            content = line_bot_api.get_message_content(image_id)
+            img_name = pet._save_img(user_id, content)
+            if image_content(imgPath/img_name):
+                message = emotion_analyze(str(imgPath/img_name))
+
     line_bot_api.reply_message(
         event.reply_token,
         TextSendMessage(message)
