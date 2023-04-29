@@ -2,7 +2,7 @@
 '''
 引用庫
 '''
-from utils import (spider, PetCreator, image_content)
+from utils import (spider, PetCreator, is_dog)
 from templates import Templates
 from linebot import (LineBotApi, WebhookHandler)
 from linebot.models import (
@@ -12,7 +12,6 @@ import os
 from database import search_pet, delete_pet
 from pathlib import Path
 import re
-from Tasks import train_model
 from Tasks.train_model.predict import emotion_analyze
 '''
 變數區
@@ -37,8 +36,8 @@ def handle_message(event):
     message = event.message.text
     user_id = event.source.user_id
     return_text = "需要幫忙嗎～"  # 預設回傳文字
-    if_update = pet.update_pet(user_id, message)
-    if_create = pet.create_pet(user_id, message)
+    if_update = pet.update_pet(user_id, message)  # 確認是否在更新寵物資料流程
+    if_create = pet.create_pet(user_id, message)  # 確認是否在新增寵物資料流程
 
     if if_update:
         return_text = if_update
@@ -89,7 +88,10 @@ def handle_location(event):
 
 @handler.add(MessageEvent, message=ImageMessage)
 def handle_message(event):
-    return_text = "這不是狗狗~"
+    '''
+    處理圖片訊息
+    '''
+    return_text = "這不是狗狗~"  # 預設回傳
     user_id = event.source.user_id
     if isinstance(event.message, ImageMessage):
         img_id = event.message.id
@@ -102,10 +104,10 @@ def handle_message(event):
             return_text = if_update_pet
         elif if_create_pet:
             return_text = if_create_pet
-        else:
+        else:  # 情緒分析
             content = line_bot_api.get_message_content(img_id)
             img_name = pet._save_img(user_id, content)
-            if image_content(img_path/img_name):
+            if is_dog(img_path/img_name):
                 return_text = emotion_analyze(str(img_path/img_name))
     line_bot_api.reply_message(
         event.reply_token,
@@ -117,13 +119,13 @@ def handle_message(event):
 def handle_message(event):
     s = event.postback.data
     user_id = event.source.user_id
-    matchs = []
+    matchs = []  # 建立符合的pattern
     matchs.append(re.search(r'^(\d+).*(更改照片)$', s))
     matchs.append(re.search(r'^(\d+).*(更改名字)$', s))
     matchs.append(re.search(r'^(\d+).*(更改品種)$', s))
     for i, match in enumerate(matchs):
         if match:
-            num = int(match.group(1))
+            num = int(match.group(1))  # 抓開頭寵物編號
             pet.start_update_pete(user_id, i+1, num)
             line_bot_api.reply_message(
                 event.reply_token,

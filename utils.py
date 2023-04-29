@@ -114,6 +114,8 @@ class PetCreator:
         :param data : 新增的資料內容,通常就是抓用戶傳的文字訊息
         :param img_id : line給的圖片id
         :param content : 圖片訊息內容
+        :return 0   : 沒有在新增資料
+                其他 : 要回傳的文字訊息 
         '''
         if user_id not in self.steps or self.steps[user_id] == 0:
             return 0
@@ -150,13 +152,15 @@ class PetCreator:
         將寵物圖片存入本地server,檔名存入db
         :param user_id : line用戶id
         :param img_id : line給的圖片id
+        :return     1 : 成功 
+                    0 : 失敗
         '''
         if img_id == 0:
             return 0
         file_name = self._save_img(img_id, content)
-        imgUrl = os.path.join(
+        img_url = os.path.join(
             os.getenv('WEBHOOK_URL'), 'static/img', file_name)
-        self.breed[user_id] = search_image(imgUrl)
+        self.breed[user_id] = return_image_breed(img_url)
         user_id_exists(user_id)
         append_pet(user_id, self.name[user_id],
                    file_name, self.breed[user_id])
@@ -167,6 +171,8 @@ class PetCreator:
         更新寵物圖像
         :param user_id : line用戶id
         :param img_id : line給的圖片id
+        :return     1 : 成功 
+                    0 : 失敗
         '''
         if img_id == 0:
             return 0
@@ -175,44 +181,22 @@ class PetCreator:
         return 1
 
 
-def search_image(url):
+def return_image_breed(url):
+    '''
+    回傳圖片品種辨識結果
+    :param url : 圖片網址連結
+    :return 品種
+    '''
     params = {
         "engine": "google_lens",
         "url": url,
         "api_key": "7bec1da4ca2d934e97d542f96113cad7e2b7052e13098b7741416c75e8221073",
         "hl": "zh-tw"
     }
-
-    url = "https://serpapi.com/search.json?engine=google_lens&url=" + url
-
-    response = requests.get(url, data=params)
-    response.encoding = "utf-8"
-
-    content = response.json()
-    print(url)
-    try:
-        breed = (content['knowledge_graph'][0])['title']
-    except:
-        breed = "未知"
-    return breed
-
-
-def search_image(url):
-
-    params = {
-        "engine": "google_lens",
-        "url": url,
-        "api_key": "7bec1da4ca2d934e97d542f96113cad7e2b7052e13098b7741416c75e8221073",
-        "hl": "zh-tw"
-    }
-
     request_url = "https://serpapi.com/search.json?engine=google_lens&url=" + url
-
     response = requests.get(request_url, data=params)
     response.encoding = "utf-8"
-
     content = response.json()
-    print(content)
     try:
         breed = (content['knowledge_graph'][0])['title']
     except:
@@ -220,27 +204,24 @@ def search_image(url):
     return breed
 
 
-def image_content(image_url):
+def is_dog(image_path):
+    '''
+    判斷是否為狗子
+    :return 1 : 是
+            0 : 否
+    '''
     # 設定您的Google Cloud認證環境變數
     os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "./zhengtian-488e92363e42.json"
-
     # 建立Vision API客戶端
     client = vision_v1.ImageAnnotatorClient()
-
-    # 得到圖片名稱
-    # image_name = url.split('/')
-
     # 讀取本地圖片文件
-    with open(image_url, 'rb') as image_file:
+    with open(image_path, 'rb') as image_file:
         content = image_file.read()
-
     # 建立Image類型的protobuf對象
     image = types.Image(content=content)
-
     # 使用Vision API進行圖像搜尋
     response = client.label_detection(image=image)
     labels = response.label_annotations
-
     # 過濾出狗的品種
     for label in labels:
         if label.description == "Dog breed":
