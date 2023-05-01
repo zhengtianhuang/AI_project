@@ -2,7 +2,7 @@
 '''
 引用庫
 '''
-from utils import (spider, PetCreator, is_dog)
+from utils import (return_pet_restaurants, PetCreator, is_dog)
 from templates import Templates
 from linebot import (LineBotApi, WebhookHandler)
 from linebot.models import (
@@ -69,8 +69,18 @@ def handle_message(event):
 
 @handler.add(MessageEvent, message=LocationMessage)
 def handle_location(event):
-    restaurants = spider(event.message.latitude, event.message.longitude)
+    '''
+    處理位置訊息
+    '''
+    restaurants = return_pet_restaurants(
+        event.message.latitude, event.message.longitude)
     rtTemplate = Templates()
+    if len(restaurants) == 0:
+        line_bot_api.reply_message(
+            event.reply_token,
+            TextSendMessage(text="查無資料")
+        )
+        return
     for i, d in enumerate(restaurants):
         try:
             rtTemplate.add_restaurant_bubble(
@@ -79,7 +89,6 @@ def handle_location(event):
             print(e)
         if i > 8:
             break
-
     line_bot_api.reply_message(
         event.reply_token,
         FlexSendMessage("flex", rtTemplate.template)
@@ -117,22 +126,25 @@ def handle_message(event):
 
 @handler.add(PostbackEvent)
 def handle_message(event):
+    '''
+    處理postback訊息
+    '''
     s = event.postback.data
     user_id = event.source.user_id
-    matchs = []  # 建立符合的pattern
-    matchs.append(re.search(r'^(\d+).*(更改照片)$', s))
-    matchs.append(re.search(r'^(\d+).*(更改名字)$', s))
-    matchs.append(re.search(r'^(\d+).*(更改品種)$', s))
-    for i, match in enumerate(matchs):
+    updata_matchs = []  # 建立符合的pattern
+    updata_matchs.append(re.search(r'^(\d+).*(更改照片)$', s))
+    updata_matchs.append(re.search(r'^(\d+).*(更改名字)$', s))
+    updata_matchs.append(re.search(r'^(\d+).*(更改品種)$', s))
+    for i, match in enumerate(updata_matchs):
         if match:
-            num = int(match.group(1))  # 抓開頭寵物編號
+            num = int(match.group(1))  # 抓字串開頭的寵物編號
             pet.start_update_pete(user_id, i+1, num)
             line_bot_api.reply_message(
                 event.reply_token,
                 TextSendMessage(match.group(2))
             )
-    match = re.search(r'^(\d+).*(刪除)$', s)
-    if match:
+    delete_match = re.search(r'^(\d+).*(刪除)$', s)
+    if delete_match:
         num = int(match.group(1))
         delete_pet(user_id, num)
         line_bot_api.reply_message(

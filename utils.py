@@ -5,7 +5,7 @@
 import requests
 from google.cloud import vision_v1
 from google.cloud.vision_v1 import types
-from database import append_pet, user_id_exists, update_pet
+from database import append_pet, append_user, update_pet
 import time
 from pathlib import Path
 import os
@@ -18,37 +18,50 @@ staticPath = Path(__file__).resolve().parent/'static'
 '''
 
 
-def spider(latitude, longitude):
-    resInfoAll = list()
-    GOOGLE_PLACES_API_KEY = "AIzaSyBt5lGoOVCzoKV9F03ZU9QwwI6rSxnI38Q"
+def return_pet_restaurants(latitude, longitude):
+    '''
+    使用 Google Maps API 找尋指定經緯度附近的寵物餐廳。
+    :param latitude (float) : 緯度。
+    :param longitude (float) : 經度。
+    :return list : 包含附近寵物餐廳資訊的字典列表。
+                   每個字典包含以下欄位：
+                    - resPhoto (str): 餐廳照片的 URL。
+                    - resName (str): 餐廳名稱。
+                    - resRating (float): 餐廳評分。
+                    - resAdd (str): 餐廳地址。
+                    - resOpen (str): 餐廳營業狀態，值為 "營業中" 或 "目前無營業"。
+    '''
+    res_info_all = []  # 存放所有找到的寵物餐廳資訊
     url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?"
     api_key = "AIzaSyBt5lGoOVCzoKV9F03ZU9QwwI6rSxnI38Q"
     types = "pet_store,veterinary_care"
     keyword = "寵物餐廳"
-    radius = str(500)
-    resPhotoPrfx = "https://maps.googleapis.com/maps/api/place/photo?maxwidth=400"
+    radius = str(500)  # 範圍
+    res_photo_prfx = "https://maps.googleapis.com/maps/api/place/photo?maxwidth=400"
     query_url = f"{url}location={latitude},{longitude}&radius={radius}&types={types}&keyword={keyword}&key={api_key}&language=zh-TW"
     response = requests.get(query_url)
     res = response.json()
-
     if res["status"] == "OK":
         results = res["results"]
         for result in results:
-            resInfo = dict()
-            resInfo['resPhoto'] = f"{resPhotoPrfx}&photo_reference={(result['photos'][0])['photo_reference']}&key={api_key}"
-            resInfo['resName'] = result["name"]
-            resInfo['resRating'] = result["rating"]
-            resInfo['resAdd'] = f"{result['plus_code']['compound_code'][-3:]}{result['vicinity']}"
-            resInfo['resOpen'] = ""
-            if result["opening_hours"]["open_now"] == True:
-                resInfo['resOpen'] = "營業中"
-                resInfoAll.append(resInfo)
+            res_info = {}
+            # 取得餐廳照片的 URL
+            photo_reference = result.get('photos', [{}])[
+                0].get('photo_reference', '')
+            res_info['resPhoto'] = f"{res_photo_prfx}&photo_reference={photo_reference}&key={api_key}"
+            # 取得餐廳名稱、評分、地址
+            res_info['resName'] = result.get("name", "")
+            res_info['resRating'] = result.get("rating", 0)
+            res_info['resAdd'] = f"{result.get('plus_code', {}).get('compound_code', '')[-3:]}{result.get('vicinity', '')}"
+            # 取得餐廳營業狀態
+            if result.get("opening_hours", {}).get("open_now", False):
+                res_info['resOpen'] = "營業中"
             else:
-                resInfo['resOpen'] = "目前無營業"
-                resInfoAll.append(resInfo)
+                res_info['resOpen'] = "目前無營業"
+            res_info_all.append(res_info)
     else:
         print("Request failed.")
-    return resInfoAll
+    return res_info_all
 
 
 class PetCreator:
@@ -161,7 +174,7 @@ class PetCreator:
         img_url = os.path.join(
             os.getenv('WEBHOOK_URL'), 'static/img', file_name)
         self.breed[user_id] = return_image_breed(img_url)
-        user_id_exists(user_id)
+        append_user(user_id)
         append_pet(user_id, self.name[user_id],
                    file_name, self.breed[user_id])
         return 1
