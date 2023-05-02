@@ -4,6 +4,10 @@ bubblePath = Path(__file__).resolve().parent/'static/json/bubbles'
 
 
 class Templates():
+    '''
+    新增一個flex_message
+    '''
+
     def __init__(self):
         self.template = {
             "type": "carousel",

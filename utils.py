@@ -5,10 +5,10 @@
 import requests
 from google.cloud import vision_v1
 from google.cloud.vision_v1 import types
-from database import append_pet, append_user, update_pet
 import time
 from pathlib import Path
 import os
+from database import db_update_pet, db_insert_pet_if_not_exist, db_insert_user_if_not_exist
 '''
 變數區
 '''
@@ -116,7 +116,7 @@ class PetCreator:
             col_name = "pet_name"
         elif self.updateCol[user_id] == 3:  # 用戶按下更改品種
             col_name = "pet_breed"
-        update_pet(col_name, data, user_id, self.updateNum[user_id])
+        db_update_pet(col_name, data, user_id, self.updateNum[user_id])
         self.updateCol[user_id] = 0  # 更改完後回復初始階段
         return f"成功更改{col_name}"
 
@@ -174,9 +174,9 @@ class PetCreator:
         img_url = os.path.join(
             os.getenv('WEBHOOK_URL'), 'static/img', file_name)
         self.breed[user_id] = return_image_breed(img_url)
-        append_user(user_id)
-        append_pet(user_id, self.name[user_id],
-                   file_name, self.breed[user_id])
+        db_insert_user_if_not_exist(user_id)
+        db_insert_pet_if_not_exist(user_id, self.name[user_id],
+                                   file_name, self.breed[user_id])
         return 1
 
     def _update_pet_img(self, user_id, img_id, content):
@@ -190,7 +190,7 @@ class PetCreator:
         if img_id == 0:
             return 0
         file_name = self._save_img(img_id, content)
-        update_pet("pet_photo", file_name, user_id, self.updateNum[user_id])
+        db_update_pet("pet_photo", file_name, user_id, self.updateNum[user_id])
         return 1
 
 

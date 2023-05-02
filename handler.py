@@ -9,10 +9,10 @@ from linebot.models import (
     TextSendMessage, FlexSendMessage, TextMessage, LocationMessage, MessageEvent, ImageMessage, PostbackEvent)
 from dotenv import load_dotenv
 import os
-from database import search_pet, delete_pet
+from database import db_delete_pet, db_search_pet
 from pathlib import Path
 import re
-from Tasks.train_model.predict import emotion_analyze
+from Tasks.train_model.predict import predict_emotion
 '''
 變數區
 '''
@@ -48,7 +48,7 @@ def handle_message(event):
         return_text = "請輸入寵物名字"
     elif message == "寵物資料":
         petTemplate = Templates()
-        result = search_pet(user_id)
+        result = db_search_pet(user_id)
         if len(result) > 0:
             for row in result:
                 imgUrl = os.path.join(
@@ -117,7 +117,7 @@ def handle_message(event):
             content = line_bot_api.get_message_content(img_id)
             img_name = pet._save_img(user_id, content)
             if is_dog(img_path/img_name):
-                return_text = emotion_analyze(str(img_path/img_name))
+                return_text = predict_emotion(str(img_path/img_name))
     line_bot_api.reply_message(
         event.reply_token,
         TextSendMessage(return_text)
@@ -145,8 +145,11 @@ def handle_message(event):
             )
     delete_match = re.search(r'^(\d+).*(刪除)$', s)
     if delete_match:
-        num = int(match.group(1))
-        delete_pet(user_id, num)
+        num = int(delete_match.group(1))
+        db_delete_pet(user_id, num)
+        print("+"*20)
+        print(num)
+        print("+"*20)
         line_bot_api.reply_message(
             event.reply_token,
             TextSendMessage("成功刪除")

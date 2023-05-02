@@ -1,9 +1,19 @@
+# predict.py
+'''
+引用庫
+'''
 import numpy as np
 import cv2
 from keras.models import load_model
 from pathlib import Path
+'''
+變數區
+'''
 filePath = Path(__file__).resolve().parent
-model = load_model(filePath/'0426.h5')
+model = load_model(filePath/'0426.h5')  # 加載已經訓練好的模型
+'''
+函式區
+'''
 
 
 def showImg(img):
@@ -11,8 +21,16 @@ def showImg(img):
     cv2.waitKey()
 
 
-def emotion_analyze(img_path):
-    # 加載已經訓練好的模型
+def predict_emotion(img_path):
+    '''
+    狗狗情緒分析
+    :param  img_path : 圖片本地路徑
+    :return 情緒
+            - angry
+            - happy
+            - relax
+            - sad
+    '''
     # 讀取新的狗圖像
     img = cv2.imread(img_path)
     img = cv2.resize(img, (224, 224))
