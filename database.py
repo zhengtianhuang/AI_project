@@ -10,7 +10,7 @@ import pymysql
 
 def connect_database(func):
     '''
-    這是一個裝飾器，用來連接資料庫並處理 SQL 語句。
+    這是一個裝飾器，用來連接資料庫並處理 SQL 語句
     '''
     def wrapper(*args, **kwargs):
         db = pymysql.connect(
@@ -124,6 +124,7 @@ def db_update_pet(db, column_name, data, user_id, num):
 def db_delete_pet(db, user_id, num):
     '''
     刪除寵物資料
+
     :param user_id : linebot用戶id
     :param num :  第幾隻寵物
     '''

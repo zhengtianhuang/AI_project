@@ -8,6 +8,7 @@ from google.cloud.vision_v1 import types
 import time
 from pathlib import Path
 import os
+import json
 from database import db_update_pet, db_insert_pet_if_not_exist, db_insert_user_if_not_exist
 '''
 變數區
@@ -33,7 +34,7 @@ def return_pet_restaurants(latitude, longitude):
     '''
     res_info_all = []  # 存放所有找到的寵物餐廳資訊
     url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?"
-    api_key = "AIzaSyBt5lGoOVCzoKV9F03ZU9QwwI6rSxnI38Q"
+    api_key = os.getenv("GOOGLE_MAP_API_KEY")
     types = "pet_store,veterinary_care"
     keyword = "寵物餐廳"
     radius = str(500)  # 範圍
