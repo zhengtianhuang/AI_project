@@ -1,4 +1,11 @@
+# database.py
+'''
+引用庫
+'''
 import pymysql
+'''
+函式區
+'''
 
 
 def connect_database(func):

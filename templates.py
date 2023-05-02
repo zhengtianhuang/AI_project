@@ -1,6 +1,16 @@
+# templates.py
+'''
+引用庫
+'''
 from json import load
 from pathlib import Path
+'''
+變數區
+'''
 bubblePath = Path(__file__).resolve().parent/'static/json/bubbles'
+'''
+class定義
+'''
 
 
 class Templates():
@@ -63,4 +73,4 @@ class Templates():
 
         # 將bubble加入template的contents
         self.template["contents"].append(bubble)
-        self.t_count += 1
+        self.t_count += 1  # 用於判斷用戶按第幾個按鈕來確認要對第幾隻寵物資料更動
