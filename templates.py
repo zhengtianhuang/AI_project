@@ -70,6 +70,7 @@ class Templates():
         bubble["footer"]["contents"][1]["action"]["data"] = f"{self.t_count}更改名字"
         bubble["footer"]["contents"][2]["action"]["data"] = f"{self.t_count}更改品種"
         bubble["footer"]["contents"][3]["action"]["data"] = f"{self.t_count}刪除"
+        bubble["footer"]["contents"][3]["action"]["text"] = "寵物資料"
 
         # 將bubble加入template的contents
         self.template["contents"].append(bubble)

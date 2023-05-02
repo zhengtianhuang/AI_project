@@ -5,8 +5,8 @@
 from utils import (return_pet_restaurants, PetCreator, is_dog)
 from templates import Templates
 from linebot import (LineBotApi, WebhookHandler)
-from linebot.models import (
-    TextSendMessage, FlexSendMessage, TextMessage, LocationMessage, MessageEvent, ImageMessage, PostbackEvent)
+from linebot.models import (ButtonsTemplate, TemplateSendMessage, PostbackTemplateAction,
+                            TextSendMessage, FlexSendMessage, TextMessage, LocationMessage, MessageEvent, ImageMessage, PostbackEvent)
 from dotenv import load_dotenv
 import os
 from database import db_delete_pet, db_search_pet
@@ -41,12 +41,13 @@ def handle_message(event):
 
     if if_update:
         return_text = if_update
+        message = "寵物資料"  # 繼續執行寵物資料
     elif if_create:
         return_text = if_create
     elif message == "新增資料":
         pet.start_create_pet(user_id)
         return_text = "請輸入寵物名字"
-    elif message == "寵物資料":
+    if message == "寵物資料":
         petTemplate = Templates()
         result = db_search_pet(user_id)
         if len(result) > 0:
@@ -54,7 +55,6 @@ def handle_message(event):
                 imgUrl = os.path.join(
                     os.getenv('WEBHOOK_URL'), 'static/img', row[1])
                 petTemplate.add_pet_bubble(imgUrl, row[0], row[2], "無", "未新增")
-                print(imgUrl)
             line_bot_api.reply_message(
                 event.reply_token,
                 FlexSendMessage("flex", petTemplate.template)
@@ -116,8 +116,26 @@ def handle_message(event):
         else:  # 情緒分析
             content = line_bot_api.get_message_content(img_id)
             img_name = pet._save_img(user_id, content)
+            pet_name_tp_action = []
             if is_dog(img_path/img_name):
                 return_text = predict_emotion(str(img_path/img_name))
+                result = db_search_pet(user_id)
+                if len(result) > 0:
+                    for i, row in enumerate(result):
+                        pet_name_tp_action.append(
+                            PostbackTemplateAction(label=row[0], data=f"{i}新增情緒"))
+                    pet_name_tp_action.append(
+                        PostbackTemplateAction(label="其他", data=f"其他"))
+                    line_bot_api.reply_message(
+                        event.reply_token,
+                        TemplateSendMessage(
+                            alt_text='Buttons template',
+                            template=ButtonsTemplate(
+                                title='選擇寵物名字',
+                                text='請選擇',
+                                actions=pet_name_tp_action
+                            )
+                        ))
     line_bot_api.reply_message(
         event.reply_token,
         TextSendMessage(return_text)

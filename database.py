@@ -85,10 +85,15 @@ def db_search_pet(db, user_id):
     :param db: 資料庫連線物件。
     :param user_id: 要搜尋的使用者ID。
 
-    :return tuple: 以tuple形式儲存的寵物資料, 若查無資料則為空tuple。
+    :return tuple: 以tuple形式儲存的寵物資料, 若查無資料則為空tuple
+
+            - pet_name
+            - pet_photo
+            - pet_breed
+            - pet_id
     """
     with db.cursor() as cursor:
-        query = "SELECT `pet_name`, `pet_photo`, `pet_breed` FROM `pets` WHERE `user_id` = %s"
+        query = "SELECT `pet_name`, `pet_photo`, `pet_breed`, `pet_id` FROM `pets` WHERE `user_id` = %s"
         cursor.execute(query, (user_id,))
         result = cursor.fetchall()
         for row in result:
@@ -118,6 +123,20 @@ def db_update_pet(db, column_name, data, user_id, num):
             print("更新成功")
         else:
             print("沒有任何資料被更新")
+
+
+@connect_database
+def db_delete_pet(db, user_id, num):
+    '''
+    刪除寵物資料
+
+    :param user_id : linebot用戶id
+    :param num :  第幾隻寵物
+    '''
+    with db.cursor() as cursor:
+        query = "DELETE FROM pets WHERE pet_id=(SELECT pet_id FROM pets WHERE user_id = %s LIMIT 1 OFFSET %s)"
+        cursor.execute(query, (user_id, num))
+        cursor.close()
 
 
 @connect_database
