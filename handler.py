@@ -118,12 +118,12 @@ def handle_message(event):
             img_name = pet._save_img(user_id, content)
             pet_name_tp_action = []
             if is_dog(img_path/img_name):
-                return_text = predict_emotion(str(img_path/img_name))
+                emo_arg = predict_emotion(str(img_path/img_name))
                 result = db_search_pet(user_id)
                 if len(result) > 0:
                     for i, row in enumerate(result):
                         pet_name_tp_action.append(
-                            PostbackTemplateAction(label=row[0], data=f"{i}新增情緒"))
+                            PostbackTemplateAction(label=row[0], data=f"{user_id}新增{i}情緒{emo_arg}"))
                     pet_name_tp_action.append(
                         PostbackTemplateAction(label="其他", data=f"其他"))
                     line_bot_api.reply_message(
@@ -161,14 +161,26 @@ def handle_message(event):
                 event.reply_token,
                 TextSendMessage(match.group(2))
             )
+
     delete_match = re.search(r'^(\d+).*(刪除)$', s)
     if delete_match:
         num = int(delete_match.group(1))
         db_delete_pet(user_id, num)
-        print("+"*20)
-        print(num)
-        print("+"*20)
         line_bot_api.reply_message(
             event.reply_token,
             TextSendMessage("成功刪除")
+        )
+
+    emo_match = re.match(r'(\w+)新增(\d+)情緒(\d+)', s)
+    if emo_match:
+        user_id = emo_match.group(1)
+        pet_num = emo_match.group(2)
+        emo_arg = emo_match.group(3)
+        emo_list = ["生氣", "開心", "放鬆", "難過"]
+        # print(user_id, i, emo_arg)
+        pet_result = db_search_pet(user_id)
+        line_bot_api.reply_message(
+            event.reply_token,
+            TextSendMessage(
+                f"{pet_result[int(pet_num)][0]}現在很{emo_list[int(emo_arg)]}")
         )

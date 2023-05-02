@@ -41,4 +41,5 @@ def predict_emotion(img_path):
     predictions = model.predict(img)
     emo = ["angry", "happy", "relax", "sad"]
     print(predictions)
-    return emo[np.argmax(predictions)]
+    return np.argmax(predictions)
+    #return emo[np.argmax(predictions)]
