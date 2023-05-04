@@ -1,7 +1,7 @@
 import requests
 
 # 設置欲上傳的圖片路徑
-img_path = "./side_projects/richmenu/richmenu.png"
+img_path = "./Tasks/richmenu/richmenu.png"
 
 
 # 1. 創建 Rich Menu，指定剛剛上傳的圖片的 contentId，獲取 richmenu id
@@ -21,10 +21,10 @@ data = {
     "areas": [
         {
             "bounds": {
-                "x": 172,
-                "y": 625,
-                "width": 618,
-                "height": 409
+                "x": 41,
+                "y": 347,
+                "width": 908,
+                "height": 639
             },
             "action": {
                 "type": "postback",
@@ -34,10 +34,10 @@ data = {
         },
         {
             "bounds": {
-                "x": 1717,
-                "y": 621,
-                "width": 614,
-                "height": 435
+                "x": 1572,
+                "y": 363,
+                "width": 874,
+                "height": 631
             },
             "action": {
                 "type": "postback",
@@ -47,10 +47,10 @@ data = {
         },
         {
             "bounds": {
-                "x": 165,
-                "y": 1070,
-                "width": 625,
-                "height": 521
+                "x": 50,
+                "y": 1027,
+                "width": 891,
+                "height": 611
             },
             "action": {
                 "type": "postback",
@@ -60,10 +60,10 @@ data = {
         },
         {
             "bounds": {
-                "x": 1724,
-                "y": 1074,
-                "width": 596,
-                "height": 510
+                "x": 1580,
+                "y": 1027,
+                "width": 875,
+                "height": 619
             },
             "action": {
                 "type": "postback",
