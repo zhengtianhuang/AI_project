@@ -3,9 +3,10 @@ import numpy as np
 import os
 import matplotlib.pyplot as plt
 from pathlib import Path
+import json
 print(tf.version)
 filePath = Path(__file__).resolve().parent
-root_dir = filePath/'content/Dog Emotion'
+img_dir = filePath/'content/Dog Emotion'
 base_model = tf.keras.applications.InceptionV3(input_shape=(224, 224, 3),
                                                include_top=False,
                                                weights="imagenet")
@@ -23,14 +24,14 @@ img_generator = tf.keras.preprocessing.image.ImageDataGenerator(
     validation_split=0.3)
 
 img_generator_flow_train = img_generator.flow_from_directory(
-    directory=root_dir,
+    directory=img_dir,
     target_size=(224, 224),
     batch_size=32,
     shuffle=True,
     subset="training")
 
 img_generator_flow_valid = img_generator.flow_from_directory(
-    directory=root_dir,
+    directory=img_dir,
     target_size=(224, 224),
     batch_size=32,
     shuffle=True,
@@ -46,7 +47,10 @@ model = tf.keras.Sequential([
 model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.0001),
               loss=tf.keras.losses.CategoricalCrossentropy(),
               metrics=[tf.keras.metrics.CategoricalAccuracy()])
-model.fit(img_generator_flow_train,
-          validation_data=img_generator_flow_valid,
-          steps_per_epoch=10, epochs=100)
-model.save("0426.h5")
+
+history = model.fit(img_generator_flow_train,
+                    validation_data=img_generator_flow_valid,
+                    steps_per_epoch=10, epochs=200)
+model.save(filePath/'model/0504.h5')
+with open(filePath/'model/0504.json', "w") as json_file:
+    json.dump(history.history, json_file)

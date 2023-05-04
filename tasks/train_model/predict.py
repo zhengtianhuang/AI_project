@@ -10,15 +10,11 @@ from pathlib import Path
 變數區
 '''
 filePath = Path(__file__).resolve().parent
-model = load_model(filePath/'0426.h5')  # 加載已經訓練好的模型
+model = load_model(
+    filePath/'0426.h5')  # 加載已經訓練好的模型
 '''
 函式區
 '''
-
-
-def showImg(img):
-    cv2.imshow("img", img)
-    cv2.waitKey()
 
 
 def predict_emotion(img_path):
@@ -42,4 +38,3 @@ def predict_emotion(img_path):
     emo = ["angry", "happy", "relax", "sad"]
     print(predictions)
     return np.argmax(predictions)
-    #return emo[np.argmax(predictions)]
