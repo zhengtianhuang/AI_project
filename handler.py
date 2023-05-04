@@ -12,7 +12,7 @@ import os
 from database import db_delete_pet, db_search_pet
 from pathlib import Path
 import re
-from Tasks.train_model.predict import predict_emotion
+from predict import predict_emotion
 '''
 變數區
 '''
