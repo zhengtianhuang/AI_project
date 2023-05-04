@@ -53,4 +53,4 @@ history = model.fit(img_generator_flow_train,
                     steps_per_epoch=10, epochs=10)
 model.save(filePath/'model/0504.h5')
 with open(filePath/'model/0504.json', "w") as json_file:
-    json.dump(history.to_json(), json_file)
+    json.dump(history.history, json_file)
