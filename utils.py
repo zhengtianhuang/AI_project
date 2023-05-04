@@ -225,7 +225,8 @@ def is_dog(image_path):
             0 : 否
     '''
     # 設定您的Google Cloud認證環境變數
-    os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "./zhengtian-488e92363e42.json"
+    os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = str(Path(
+        __file__).resolve().parent/"Secret/zhengtian-488e92363e42.json")
     # 建立Vision API客戶端
     client = vision_v1.ImageAnnotatorClient()
     # 讀取本地圖片文件

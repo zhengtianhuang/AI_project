@@ -17,7 +17,7 @@ from Tasks.train_model.predict import predict_emotion
 變數區
 '''
 # 載入 .env 文件中的環境變數
-load_dotenv("secret.env")
+load_dotenv(str(Path(__file__).resolve().parent/"Secret/secret.env"))
 # 使用 os 模組獲取環境變數的值
 handler = WebhookHandler(os.getenv('CHANNEL_ACCESS_TOKEN'))
 line_bot_api = LineBotApi(os.getenv('CHANNEL_SECRET'))
