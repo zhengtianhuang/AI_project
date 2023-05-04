@@ -6,13 +6,12 @@ import numpy as np
 import cv2
 from keras.models import load_model
 from pathlib import Path
-import matplotlib.pyplot as plt
 '''
 變數區
 '''
-filePath = Path(__file__).resolve().parent.parent.parent
+filePath = Path(__file__).resolve().parent
 model = load_model(
-    filePath/'checkpoints/0504/weights.01-2.14.h5')  # 加載已經訓練好的模型
+    filePath/'0426.h5')  # 加載已經訓練好的模型
 '''
 函式區
 '''
@@ -46,10 +45,4 @@ def predict_emotion(img_path):
     return np.argmax(predictions)
 
 
-    # return emo[np.argmax(predictions)]
-plt.plot(model.history.history["categorical_accuracy"],
-         c="r", label="train_accuracy")
-plt.plot(
-    model.history.history["val_categorical_accuracy"], c="b", label="test_accuracy")
-plt.legend(loc="upper left")
-plt.show()
+    
