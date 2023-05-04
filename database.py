@@ -131,40 +131,22 @@ def db_delete_pet(db, user_id, num):
     刪除寵物資料
 
     :param user_id : linebot用戶id
-    :param num :  第幾隻寵物
+    :param num :  第幾隻寵物(1開始)
     '''
     with db.cursor() as cursor:
+        query = "DELETE FROM pets_emotions WHERE pet_id=(SELECT pet_id FROM pets WHERE user_id = %s)"
+        cursor.execute(query, (user_id,))
         query = "DELETE FROM pets WHERE pet_id=(SELECT pet_id FROM pets WHERE user_id = %s LIMIT 1 OFFSET %s)"
         cursor.execute(query, (user_id, num))
         cursor.close()
 
 
 @connect_database
-def db_search_one_pet(db, user_id, num):
-    '''
-    抓取寵物在資料庫中的id
-
-    :param user_id : linebot用戶id
-    :param pet_name :  寵物名字
-    '''
-    with db.cursor() as cursor:
-        query = "SELECT `pet_id` FROM `pets` WHERE `user_id` = %s AND `pet_name` = %s"
-        cursor.execute(query, (user_id, pet_name))
-        result = cursor.fetchone()
-        if result:
-            pid = result[0]
-        else:
-            print('No pet found')
-            pid = None
-    return pid
-
-
-@connect_database
-def append_emotion(db, pet_id, pet_emotion):
+def db_append_emotion(db, pet_id, pet_emotion):
     '''
     新增寵物情緒(資料庫只儲存最近一筆情緒分析情果)
 
-    :param pet_id : pet在資料庫分配到的id(get_id)
+    :param pet_id : pet在資料庫分配到的id(pet_id)
     :param pet_emotion :  分析情緒結果
     '''
     with db.cursor() as cursor:
@@ -190,7 +172,7 @@ def append_emotion(db, pet_id, pet_emotion):
 @connect_database
 def db_search_emotion(db, pet_id):
     '''
-    顯示寵物情緒
+    搜尋寵物情緒
 
     :param pet_id : pet在資料庫分配到的id(get_id)
     :return result : 無資料時 

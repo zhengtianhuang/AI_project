@@ -9,7 +9,7 @@ from linebot.models import (ButtonsTemplate, TemplateSendMessage, PostbackTempla
                             TextSendMessage, FlexSendMessage, TextMessage, LocationMessage, MessageEvent, ImageMessage, PostbackEvent)
 from dotenv import load_dotenv
 import os
-from database import db_delete_pet, db_search_pet, get_pid, append_emotion, db_search_emotion
+from database import db_delete_pet, db_search_pet, db_append_emotion, db_search_emotion
 from pathlib import Path
 import re
 from predict import predict_emotion
@@ -56,7 +56,7 @@ def handle_message(event):
                     os.getenv('WEBHOOK_URL'), 'static/img', row[1])
                 pet_id = row[3]
                 emo_list = ["生氣", "開心", "放鬆", "難過"]
-                emo_result = display_emotion(pet_id)
+                emo_result = db_search_emotion(pet_id)
                 if emo_result:
                     emo_index = emo_result[0]
                     updated_time = emo_result[1]
@@ -187,9 +187,7 @@ def handle_message(event):
         pet_id = emo_match.group(2)
         pet_name = emo_match.group(3)
         emo_arg = emo_match.group(4)
-        print(user_id, i, emo_arg)
-        append_emotion(pet_id, emo_arg)
-        # pet_result = db_search_pet(user_id)
+        db_append_emotion(pet_id, emo_arg)
         line_bot_api.reply_message(
             event.reply_token,
             TextSendMessage(
