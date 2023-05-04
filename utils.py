@@ -6,6 +6,7 @@ import requests
 from google.cloud import vision_v1
 from google.cloud.vision_v1 import types
 import time
+from datetime import datetime
 from pathlib import Path
 import os
 import json
@@ -242,3 +243,35 @@ def is_dog(image_path):
         if label.description == "Dog breed":
             return 1
     return 0
+
+
+def delta_time(time):
+    '''
+    判斷資料更新時間過多久
+    :return 幾秒/幾分鐘/幾小時前/日期
+    '''
+    current_time = datetime.now()
+    data_time = datetime.strptime(str(time), '%Y-%m-%d %H:%M:%S')
+    delta_time = current_time - data_time
+
+    seconds = int(delta_time.total_seconds())
+
+    if seconds < 0:
+        print("error")
+    else:
+        if seconds < 60:
+            message = ("上次分析: " + str(seconds) + "秒鐘前")
+            return message
+        else:
+            minutes = int(seconds/60)
+            if minutes < 60:
+                message = ("上次分析: " + str(minutes) + "分鐘前")
+                return message
+            else:
+                hours = int(minutes/60)
+                if hours < 24:
+                    message = ("上次分析: " + str(hours) + "小時前")
+                    return message
+                else:
+                    print(data_time)
+                    return data_time

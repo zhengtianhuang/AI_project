@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- 主機： localhost
--- 產生時間： 2023 年 04 月 19 日 09:12
+-- 產生時間： 2023 年 05 月 04 日 07:47
 -- 伺服器版本： 10.4.27-MariaDB
 -- PHP 版本： 8.2.0
 
@@ -37,8 +37,9 @@ CREATE TABLE `emotions` (
 --
 
 INSERT INTO `emotions` (`emotion_id`, `emotion`) VALUES
+(0, '生氣'),
 (1, '開心'),
-(2, '生氣'),
+(2, '放鬆'),
 (3, '難過');
 
 -- --------------------------------------------------------
@@ -62,12 +63,12 @@ CREATE TABLE `pets` (
 --
 
 INSERT INTO `pets` (`user_id`, `pet_name`, `pet_photo`, `pet_breed`, `created_time`, `updated_time`, `pet_id`) VALUES
-('U751dd717d052680824fd250ddb7a7a55', 'Golden', 'cde.png', '黃金獵犬', '2023-04-17 16:37:08', '0000-00-00 00:00:00', 1),
 ('1099', 'piggy', '5678.png', '吉娃娃', '2023-04-18 15:23:00', '0000-00-00 00:00:00', 2),
 ('POPO', 'Lion', 'iiii.png', '貴賓狗', '2023-04-18 15:46:41', '0000-00-00 00:00:00', 3),
 ('oljimmm', 'jimmy', '5678.png', '吉娃娃', '2023-04-18 15:25:31', '0000-00-00 00:00:00', 4),
-('U751dd717d052680824fd250ddb7a7a55', 'KOKO', '1234.png', '邊牧', '2023-04-17 16:30:34', '0000-00-00 00:00:00', 5),
-('123', 'nini2', '2.jpg', 'black', '2023-04-19 15:02:15', '2023-04-19 15:03:52', 6);
+('123', 'nini2', '2.jpg', 'black', '2023-04-19 15:02:15', '2023-04-19 15:03:52', 6),
+('U751dd717d052680824fd250ddb7a7a55', '大白', '18088873756307-1683177795.jpg', '薩摩耶犬', '2023-05-04 13:23:18', '2023-05-04 13:23:18', 8),
+('U751dd717d052680824fd250ddb7a7a55', 'Collie', '18088876386728-1683177841.jpg', '邊境牧羊犬', '2023-05-04 13:24:06', '2023-05-04 13:24:06', 9);
 
 -- --------------------------------------------------------
 
@@ -78,18 +79,22 @@ INSERT INTO `pets` (`user_id`, `pet_name`, `pet_photo`, `pet_breed`, `created_ti
 CREATE TABLE `pets_emotions` (
   `pet_emotion_id` int(11) NOT NULL,
   `pet_id` int(11) NOT NULL,
-  `emotion_id` int(11) NOT NULL,
-  `pet_emotion_img` varchar(100) DEFAULT NULL
+  `pet_emotion` int(11) NOT NULL,
+  `updated_time` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- 傾印資料表的資料 `pets_emotions`
 --
 
-INSERT INTO `pets_emotions` (`pet_emotion_id`, `pet_id`, `emotion_id`, `pet_emotion_img`) VALUES
-(1, 1, 1, '1.jpg'),
-(2, 1, 2, '2.jpg'),
-(3, 1, 1, '3.jpg');
+INSERT INTO `pets_emotions` (`pet_emotion_id`, `pet_id`, `pet_emotion`, `updated_time`) VALUES
+(2, 1, 2, '2023-05-03 15:34:48'),
+(4, 5, 4, '2023-05-03 22:56:27'),
+(5, 3, 1, '2023-05-03 23:07:00'),
+(6, 6, 1, '2023-05-03 23:07:49'),
+(7, 7, 2, '2023-05-04 13:17:34'),
+(8, 8, 0, '2023-05-04 13:40:41'),
+(9, 9, 2, '2023-05-04 13:35:39');
 
 -- --------------------------------------------------------
 
@@ -155,19 +160,19 @@ ALTER TABLE `users`
 -- 使用資料表自動遞增(AUTO_INCREMENT) `emotions`
 --
 ALTER TABLE `emotions`
-  MODIFY `emotion_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `emotion_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- 使用資料表自動遞增(AUTO_INCREMENT) `pets`
 --
 ALTER TABLE `pets`
-  MODIFY `pet_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `pet_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- 使用資料表自動遞增(AUTO_INCREMENT) `pets_emotions`
 --
 ALTER TABLE `pets_emotions`
-  MODIFY `pet_emotion_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `pet_emotion_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

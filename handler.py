@@ -2,14 +2,14 @@
 '''
 引用庫
 '''
-from utils import (return_pet_restaurants, PetCreator, is_dog)
+from utils import (return_pet_restaurants, PetCreator, is_dog, delta_time)
 from templates import Templates
 from linebot import (LineBotApi, WebhookHandler)
 from linebot.models import (ButtonsTemplate, TemplateSendMessage, PostbackTemplateAction,
                             TextSendMessage, FlexSendMessage, TextMessage, LocationMessage, MessageEvent, ImageMessage, PostbackEvent)
 from dotenv import load_dotenv
 import os
-from database import db_delete_pet, db_search_pet
+from database import db_delete_pet, db_search_pet, get_pid, append_emotion, search_emotion, display_emotion
 from pathlib import Path
 import re
 from predict import predict_emotion
@@ -54,7 +54,19 @@ def handle_message(event):
             for row in result:
                 imgUrl = os.path.join(
                     os.getenv('WEBHOOK_URL'), 'static/img', row[1])
-                petTemplate.add_pet_bubble(imgUrl, row[0], row[2], "無", "未新增")
+                pet_id = row[3]
+                if search_emotion(pet_id) == 1:
+                    # 1表示有過去情緒分析結果
+                    emo_list = ["生氣", "開心", "放鬆", "難過"]
+                    emotion = (display_emotion(pet_id))[0]
+                    updated_time = (display_emotion(pet_id))[1]
+                    petTemplate.add_pet_bubble(
+                        imgUrl, row[0], row[2], emo_list[emotion], delta_time(updated_time))
+                elif search_emotion(pet_id) == 0:
+                    # 0表示沒分析過
+                    petTemplate.add_pet_bubble(
+                        imgUrl, row[0], row[2], "無", "未新增")
+
             line_bot_api.reply_message(
                 event.reply_token,
                 FlexSendMessage("flex", petTemplate.template)
@@ -113,7 +125,7 @@ def handle_message(event):
             return_text = if_update_pet
         elif if_create_pet:
             return_text = if_create_pet
-        else:  # 情緒分析
+        else:  # 情緒分析i
             content = line_bot_api.get_message_content(img_id)
             img_name = pet._save_img(user_id, content)
             pet_name_tp_action = []
@@ -123,7 +135,7 @@ def handle_message(event):
                 if len(result) > 0:
                     for i, row in enumerate(result):
                         pet_name_tp_action.append(
-                            PostbackTemplateAction(label=row[0], data=f"{user_id}新增{i}情緒{emo_arg}"))
+                            PostbackTemplateAction(label=row[0], data=f"{user_id}新增{row[3]}名字{row[0]}情緒{emo_arg}"))
                     pet_name_tp_action.append(
                         PostbackTemplateAction(label="其他", data=f"其他"))
                     line_bot_api.reply_message(
@@ -171,16 +183,18 @@ def handle_message(event):
             TextSendMessage("成功刪除")
         )
 
-    emo_match = re.match(r'(\w+)新增(\d+)情緒(\d+)', s)
+    emo_match = re.match(r'(\w+)新增(\d+)名字(\w+)情緒(\d+)', s)
     if emo_match:
         user_id = emo_match.group(1)
-        pet_num = emo_match.group(2)
-        emo_arg = emo_match.group(3)
+        pet_id = emo_match.group(2)
+        pet_name = emo_match.group(3)
+        emo_arg = emo_match.group(4)
         emo_list = ["生氣", "開心", "放鬆", "難過"]
-        # print(user_id, i, emo_arg)
-        pet_result = db_search_pet(user_id)
+        print(user_id, i, emo_arg)
+        append_emotion(pet_id, emo_arg)
+        # pet_result = db_search_pet(user_id)
         line_bot_api.reply_message(
             event.reply_token,
             TextSendMessage(
-                f"{pet_result[int(pet_num)][0]}現在很{emo_list[int(emo_arg)]}")
+                f"您的{pet_name}現在很{emo_list[int(emo_arg)]}")
         )

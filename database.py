@@ -151,3 +151,89 @@ def db_delete_pet(db, user_id, num):
         query = "DELETE FROM pets WHERE pet_id=(SELECT pet_id FROM pets WHERE user_id = %s LIMIT 1 OFFSET %s)"
         cursor.execute(query, (user_id, num))
         cursor.close()
+
+
+@connect_database
+def get_pid(db, user_id, pet_name):
+    '''
+    抓取寵物在資料庫中的id
+
+    :param user_id : linebot用戶id
+    :param pet_name :  寵物名字
+    '''
+    with db.cursor() as cursor:
+        query = "SELECT `pet_id` FROM `pets` WHERE `user_id` = %s AND `pet_name` = %s"
+        cursor.execute(query, (user_id, pet_name))
+        result = cursor.fetchone()
+        if result:
+            pid = result[0]
+        else:
+            print('No pet found')
+            pid = None
+    return pid
+
+
+@connect_database
+def append_emotion(db, pet_id, pet_emotion):
+    '''
+    新增寵物情緒(資料庫只儲存最近一筆情緒分析情果)
+
+    :param pet_id : pet在資料庫分配到的id(get_id)
+    :param pet_emotion :  分析情緒結果
+    '''
+    with db.cursor() as cursor:
+        query = "SELECT * FROM `pets_emotions` WHERE `pet_id` = %s"
+        cursor.execute(query, (pet_id))
+        result = cursor.fetchone()
+        if result:
+            update = "UPDATE `pets_emotions` SET `pet_emotion`= %s WHERE `pet_id`= %s"
+            cursor.execute(update, (pet_emotion, pet_id))
+            if cursor.rowcount > 0:
+                print("更新成功")
+            else:
+                print("沒有任何資料被更新")
+        else:
+            append = "INSERT INTO `pets_emotions`(`pet_id`, `pet_emotion`) VALUES (%s,%s)"
+            cursor.execute(append, (pet_id, pet_emotion))
+            if cursor.rowcount > 0:
+                print("新增成功")
+            else:
+                print("沒有任何資料被更新")
+
+
+@connect_database
+def search_emotion(db, pet_id):
+    '''
+    查詢該寵物是否有情緒資料
+
+    :param pet_id : pet在資料庫分配到的id(get_id)
+    '''
+    with db.cursor() as cursor:
+        query = "SELECT * FROM `pets_emotions` WHERE `pet_id` = %s"
+        cursor.execute(query, (pet_id))
+        result = cursor.fetchone()
+        if result:
+            return 1
+        else:
+            return 0
+
+
+@connect_database
+def display_emotion(db, pet_id):
+    '''
+    顯示寵物情緒
+
+    :param pet_id : pet在資料庫分配到的id(get_id)
+    '''
+    with db.cursor() as cursor:
+        query = "SELECT `pet_emotion`, `updated_time` FROM `pets_emotions` WHERE `pet_id` = %s"
+        cursor.execute(query, (pet_id))
+        result = cursor.fetchone()
+        if result:
+            # 有情緒分析資料
+            # emotion = result[0]
+            # updated_time = result[1]
+            return result
+        else:
+            # 無情緒分析資料
+            return 0
