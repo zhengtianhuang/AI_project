@@ -9,7 +9,7 @@ from linebot.models import (ButtonsTemplate, TemplateSendMessage, PostbackTempla
                             TextSendMessage, FlexSendMessage, TextMessage, LocationMessage, MessageEvent, ImageMessage, PostbackEvent)
 from dotenv import load_dotenv
 import os
-from database import db_delete_pet, db_search_pet, get_pid, append_emotion, search_emotion, display_emotion
+from database import db_delete_pet, db_search_pet, get_pid, append_emotion, db_search_emotion
 from pathlib import Path
 import re
 from predict import predict_emotion
@@ -125,7 +125,7 @@ def handle_message(event):
             return_text = if_create_pet
         else:  # 情緒分析i
             content = line_bot_api.get_message_content(img_id)
-            img_name = pet._save_img(user_id, content)
+            img_name = pet._save_img(img_id, content)
             pet_name_tp_action = []
             if is_dog(img_path/img_name):
                 emo_arg = predict_emotion(str(img_path/img_name))
@@ -135,7 +135,7 @@ def handle_message(event):
                         pet_name_tp_action.append(
                             PostbackTemplateAction(label=row[0], data=f"{user_id}新增{row[3]}名字{row[0]}情緒{emo_arg}"))
                     pet_name_tp_action.append(
-                        PostbackTemplateAction(label="其他", data=f"其他"))
+                        PostbackTemplateAction(label="其他", data=f"其他{emo_arg}"))
                     line_bot_api.reply_message(
                         event.reply_token,
                         TemplateSendMessage(
@@ -160,9 +160,13 @@ def handle_message(event):
     s = event.postback.data
     user_id = event.source.user_id
     updata_matchs = []  # 建立符合的pattern
+    emo_list = ["生氣", "開心", "放鬆", "難過"]
+    emo_match = re.match(r'(\w+)新增(\d+)名字(\w+)情緒(\d+)', s)
     updata_matchs.append(re.search(r'^(\d+).*(更改照片)$', s))
     updata_matchs.append(re.search(r'^(\d+).*(更改名字)$', s))
     updata_matchs.append(re.search(r'^(\d+).*(更改品種)$', s))
+    delete_match = re.search(r'^(\d+).*(刪除)$', s)
+    other_pet_emo_match = re.match(r'其他(\d+)', s)
     for i, match in enumerate(updata_matchs):
         if match:
             num = int(match.group(1))  # 抓字串開頭的寵物編號
@@ -171,8 +175,6 @@ def handle_message(event):
                 event.reply_token,
                 TextSendMessage(match.group(2))
             )
-
-    delete_match = re.search(r'^(\d+).*(刪除)$', s)
     if delete_match:
         num = int(delete_match.group(1))
         db_delete_pet(user_id, num)
@@ -180,14 +182,11 @@ def handle_message(event):
             event.reply_token,
             TextSendMessage("成功刪除")
         )
-
-    emo_match = re.match(r'(\w+)新增(\d+)名字(\w+)情緒(\d+)', s)
-    if emo_match:
+    elif emo_match:
         user_id = emo_match.group(1)
         pet_id = emo_match.group(2)
         pet_name = emo_match.group(3)
         emo_arg = emo_match.group(4)
-        emo_list = ["生氣", "開心", "放鬆", "難過"]
         print(user_id, i, emo_arg)
         append_emotion(pet_id, emo_arg)
         # pet_result = db_search_pet(user_id)
@@ -195,4 +194,11 @@ def handle_message(event):
             event.reply_token,
             TextSendMessage(
                 f"您的{pet_name}現在很{emo_list[int(emo_arg)]}")
+        )
+    elif other_pet_emo_match:
+        emo_arg = other_pet_emo_match.group(1)
+        line_bot_api.reply_message(
+            event.reply_token,
+            TextSendMessage(
+                f"您的寵物現在很{emo_list[int(emo_arg)]}")
         )
