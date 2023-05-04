@@ -55,18 +55,16 @@ def handle_message(event):
                 imgUrl = os.path.join(
                     os.getenv('WEBHOOK_URL'), 'static/img', row[1])
                 pet_id = row[3]
-                if search_emotion(pet_id) == 1:
-                    # 1表示有過去情緒分析結果
-                    emo_list = ["生氣", "開心", "放鬆", "難過"]
-                    emotion = (display_emotion(pet_id))[0]
-                    updated_time = (display_emotion(pet_id))[1]
+                emo_list = ["生氣", "開心", "放鬆", "難過"]
+                emo_result = display_emotion(pet_id)
+                if emo_result:
+                    emo_index = emo_result[0]
+                    updated_time = emo_result[1]
                     petTemplate.add_pet_bubble(
-                        imgUrl, row[0], row[2], emo_list[emotion], delta_time(updated_time))
-                elif search_emotion(pet_id) == 0:
-                    # 0表示沒分析過
+                        imgUrl, row[0], row[2], emo_list[emo_index], delta_time(updated_time))
+                else:
                     petTemplate.add_pet_bubble(
                         imgUrl, row[0], row[2], "無", "未新增")
-
             line_bot_api.reply_message(
                 event.reply_token,
                 FlexSendMessage("flex", petTemplate.template)

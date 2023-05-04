@@ -255,23 +255,20 @@ def delta_time(time):
     delta_time = current_time - data_time
 
     seconds = int(delta_time.total_seconds())
-
+    minutes = int(seconds/60)
+    hours = int(minutes/60)
     if seconds < 0:
         print("error")
+        return None
+    elif seconds < 60:
+        message = ("上次分析: " + str(seconds) + "秒鐘前")
+        return message
+    elif minutes < 60:
+        message = ("上次分析: " + str(minutes) + "分鐘前")
+        return message
+    elif hours < 24:
+        message = ("上次分析: " + str(hours) + "小時前")
+        return message
     else:
-        if seconds < 60:
-            message = ("上次分析: " + str(seconds) + "秒鐘前")
-            return message
-        else:
-            minutes = int(seconds/60)
-            if minutes < 60:
-                message = ("上次分析: " + str(minutes) + "分鐘前")
-                return message
-            else:
-                hours = int(minutes/60)
-                if hours < 24:
-                    message = ("上次分析: " + str(hours) + "小時前")
-                    return message
-                else:
-                    print(data_time)
-                    return data_time
+        print(data_time)
+        return data_time
