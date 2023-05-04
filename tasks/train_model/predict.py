@@ -17,11 +17,6 @@ model = load_model(
 '''
 
 
-def showImg(img):
-    cv2.imshow("img", img)
-    cv2.waitKey()
-
-
 def predict_emotion(img_path):
     '''
     狗狗情緒分析
@@ -43,6 +38,3 @@ def predict_emotion(img_path):
     emo = ["angry", "happy", "relax", "sad"]
     print(predictions)
     return np.argmax(predictions)
-
-
-    
