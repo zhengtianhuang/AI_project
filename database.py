@@ -189,3 +189,25 @@ def db_search_emotion(db, pet_id):
             return result
         # 無情緒分析資料
         return 0
+
+
+@connect_database
+def db_get_emolist(db):
+    '''
+    抓取寵物情緒編號、情緒種類
+
+    :return emo_list 
+    result = ((0, '生氣'), (1, '開心'), (2, '放鬆'), (3, '難過'))
+    emo_list = ['生氣', '開心', '放鬆', '難過']
+    '''
+    with db.cursor() as cursor:
+        query = "SELECT * FROM `emotions`"
+        cursor.execute(query)
+        result = cursor.fetchall()
+        if result:
+            emo_list = []
+            for emo in result:
+                emo_list.append(emo[1])
+            return emo_list
+        else:
+            return None

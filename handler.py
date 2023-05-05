@@ -9,7 +9,7 @@ from linebot.models import (ButtonsTemplate, TemplateSendMessage, PostbackTempla
                             TextSendMessage, FlexSendMessage, TextMessage, LocationMessage, MessageEvent, ImageMessage, PostbackEvent)
 from dotenv import load_dotenv
 import os
-from database import db_delete_pet, db_search_pet, db_append_emotion, db_search_emotion
+from database import db_delete_pet, db_search_pet, db_append_emotion, db_search_emotion, db_get_emolist
 from pathlib import Path
 import re
 from predict import predict_emotion
@@ -23,6 +23,7 @@ handler = WebhookHandler(os.getenv('CHANNEL_ACCESS_TOKEN'))
 line_bot_api = LineBotApi(os.getenv('CHANNEL_SECRET'))
 img_path = Path(__file__).resolve().parent/'static/img'
 pet = PetCreator()
+emo_list = db_get_emolist()
 '''
 函式區
 '''
@@ -55,7 +56,6 @@ def handle_message(event):
                 imgUrl = os.path.join(
                     os.getenv('WEBHOOK_URL'), 'static/img', row[1])
                 pet_id = row[3]
-                emo_list = ["生氣", "開心", "放鬆", "難過"]
                 emo_result = db_search_emotion(pet_id)
                 if emo_result:
                     emo_index = emo_result[0]
@@ -160,7 +160,6 @@ def handle_message(event):
     s = event.postback.data
     user_id = event.source.user_id
     updata_matchs = []  # 建立符合的pattern
-    emo_list = ["生氣", "開心", "放鬆", "難過"]
     emo_match = re.match(r'(\w+)新增(\d+)名字(\w+)情緒(\d+)', s)
     updata_matchs.append(re.search(r'^(\d+).*(更改照片)$', s))
     updata_matchs.append(re.search(r'^(\d+).*(更改名字)$', s))
