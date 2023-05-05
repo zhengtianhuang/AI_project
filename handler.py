@@ -158,12 +158,15 @@ def handle_message(event):
     處理postback訊息
     '''
     s = event.postback.data
+    print('='*20)
+    print('s = ' + s)
+    print('='*20)
     user_id = event.source.user_id
     updata_matchs = []  # 建立符合的pattern
     emo_match = re.match(r'(\w+)新增(\d+)名字(\w+)情緒(\d+)', s)
-    updata_matchs.append(re.search(r'^(\d+).*(更改照片)$', s))
-    updata_matchs.append(re.search(r'^(\d+).*(更改名字)$', s))
-    updata_matchs.append(re.search(r'^(\d+).*(更改品種)$', s))
+    updata_matchs.append(re.search(r'^(\d+).*(請上傳新照片～)$', s))
+    updata_matchs.append(re.search(r'^(\d+).*(請輸入新名字～)$', s))
+    updata_matchs.append(re.search(r'^(\d+).*(請輸入新品種～)$', s))
     delete_match = re.search(r'^(\d+).*(刪除)$', s)
     other_pet_emo_match = re.match(r'其他(\d+)', s)
     for i, match in enumerate(updata_matchs):
@@ -179,7 +182,7 @@ def handle_message(event):
         db_delete_pet(user_id, num)
         line_bot_api.reply_message(
             event.reply_token,
-            TextSendMessage("成功刪除")
+            TextSendMessage("已刪除資料！")
         )
     elif emo_match:
         user_id = emo_match.group(1)
@@ -190,12 +193,12 @@ def handle_message(event):
         line_bot_api.reply_message(
             event.reply_token,
             TextSendMessage(
-                f"您的{pet_name}現在很{emo_list[int(emo_arg)]}")
+                f"您的{pet_name}現在很{emo_list[int(emo_arg)]}!")
         )
     elif other_pet_emo_match:
         emo_arg = other_pet_emo_match.group(1)
         line_bot_api.reply_message(
             event.reply_token,
             TextSendMessage(
-                f"您的寵物現在很{emo_list[int(emo_arg)]}")
+                f"您的寵物現在很{emo_list[int(emo_arg)]}!")
         )

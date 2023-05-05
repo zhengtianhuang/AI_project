@@ -134,9 +134,9 @@ def db_delete_pet(db, user_id, num):
     :param num :  第幾隻寵物(1開始)
     '''
     with db.cursor() as cursor:
-        query = "DELETE FROM pets_emotions WHERE pet_id=(SELECT pet_id FROM pets WHERE user_id = %s)"
-        cursor.execute(query, (user_id,))
-        query = "DELETE FROM pets WHERE pet_id=(SELECT pet_id FROM pets WHERE user_id = %s LIMIT 1 OFFSET %s)"
+        query = "DELETE FROM `pets_emotions` WHERE `pet_id` = (SELECT `pet_id` FROM `pets` WHERE `user_id` = %s LIMIT 1 OFFSET %s)"
+        cursor.execute(query, (user_id, num))
+        query = "DELETE FROM `pets` WHERE `pet_id` = (SELECT `pet_id` FROM `pets` WHERE `user_id` = %s LIMIT 1 OFFSET %s)"
         cursor.execute(query, (user_id, num))
         cursor.close()
 
