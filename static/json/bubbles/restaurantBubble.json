@@ -31,23 +31,23 @@
                 "contents": [
                     {
                         "type": "icon",
-                        "url": "https://scdn.line-apps.com/n/channel_devcenter/img/fx/review_gold_star_28.png"
+                        "url": "https://maps.gstatic.com/consumer/images/icons/2x/ic_star_rate_14.png"
                     },
                     {
                         "type": "icon",
-                        "url": "https://scdn.line-apps.com/n/channel_devcenter/img/fx/review_gold_star_28.png"
+                        "url": "https://maps.gstatic.com/consumer/images/icons/2x/ic_star_rate_14.png"
                     },
                     {
                         "type": "icon",
-                        "url": "https://scdn.line-apps.com/n/channel_devcenter/img/fx/review_gold_star_28.png"
+                        "url": "https://maps.gstatic.com/consumer/images/icons/2x/ic_star_rate_14.png"
                     },
                     {
                         "type": "icon",
-                        "url": "https://scdn.line-apps.com/n/channel_devcenter/img/fx/review_gold_star_28.png"
+                        "url": "https://maps.gstatic.com/consumer/images/icons/2x/ic_star_rate_14.png"
                     },
                     {
                         "type": "icon",
-                        "url": "https://scdn.line-apps.com/n/channel_devcenter/img/fx/review_gray_star_28.png"
+                        "url": "https://maps.gstatic.com/consumer/images/icons/2x/ic_star_rate_14.png"
                     },
                     {
                         "type": "text",
@@ -131,9 +131,9 @@
             {
                 "type": "button",
                 "action": {
-                    "type": "uri",
-                    "label": "店舖情報",
-                    "uri": "https://www.apple.com/tw/?afid=p238%7Csd9nZSawW-dc_mtid_18707vxu38484_pcrid_651262289409_pgrid_12618487622_pntwk_g_pchan__pexid__&cid=aos-tw-kwgo-brand--slid---product-"
+                    "type": "postback",
+                    "label": "店家的話",
+                    "data": "action=這是一個默默的店家~&message_id=get_m_d"
                 },
                 "style": "link"
             }
