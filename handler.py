@@ -200,3 +200,14 @@ def handle_message(event):
             TextSendMessage(
                 f"您的寵物現在很{emo_list[int(emo_arg)]}")
         )
+    
+    #
+    match_m_d = re.search(r'message_id=get_m_d', s)
+    if match_m_d:
+        action = re.search(r'action=([^&]+)', s).group(1)
+        line_bot_api.reply_message(
+            event.reply_token,
+            TextSendMessage(action)
+        )
+
+
