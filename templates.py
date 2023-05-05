@@ -4,6 +4,9 @@
 '''
 from json import load
 from pathlib import Path
+import requests
+import json
+import os
 '''
 變數區
 '''
@@ -42,6 +45,53 @@ class Templates():
         bubble["body"]["contents"][1]["contents"][5]["text"] = str(rating)
         bubble["body"]["contents"][3]["contents"][1]["text"] = str(add)
         bubble["body"]["contents"][4]["contents"][1]["text"] = str(is_open)
+
+        # 替換的星星圖片
+        HalfStar = 'https://maps.gstatic.com/consumer/images/icons/2x/ic_star_rate_half_14.png'
+        EmptyStar = 'https://maps.gstatic.com/consumer/images/icons/2x/ic_star_rate_empty_14.png'
+
+        # 判斷評論的整數部分有多少灰色星星
+        empty_star = int((5 - rating) // 1)
+        for i in range(empty_star):
+            bubble["body"]["contents"][1]["contents"][4-i]["url"] = EmptyStar
+
+        # 判斷評論的小數部分轉換的星星樣子，小數點落在3-7之間為半顆星
+        dot_star = round(rating % 1 * 10)
+        if dot_star < 8 and dot_star > 2:
+            bubble["body"]["contents"][1]["contents"][4-empty_star]["url"] = HalfStar
+        elif dot_star <= 2:
+            bubble["body"]["contents"][1]["contents"][4-empty_star]["url"] = EmptyStar
+
+        # 抓取google knowledge graph中的商家資訊
+        params = {
+                    "api_key": '7bec1da4ca2d934e97d542f96113cad7e2b7052e13098b7741416c75e8221073',
+                    "engine": "google",
+                    "q": name,
+                    "google_domain": "google.com.tw",
+                    "hl": "zh-tw",
+                    "gl": "tw",
+                    "tbs": "restaurant"
+                }
+        request_url = "https://serpapi.com/search.json?engine=google&q=" + name
+        response = requests.get(request_url, data=params)
+        response.encoding = 'uft-8'
+        content = response.json()
+        if "knowledge_graph" not in content:
+            pass
+        else:
+            try:
+                if "website" in content["knowledge_graph"]:
+                    website = content["knowledge_graph"]["website"]
+                    bubble["hero"]["action"]["uri"] = website
+                if "菜單_links" in content["knowledge_graph"]:
+                    menu_link = content["knowledge_graph"]["菜單_links"][0]["link"]
+                    bubble["footer"]["contents"][0]["action"]["uri"] = menu_link
+                if "merchant_description" in content["knowledge_graph"]:
+                    merchant_desc = content["knowledge_graph"]["merchant_description"]
+                    bubble["footer"]["contents"][1]["action"]["data"] = f"action={merchant_desc}&message_id=get_m_d"
+            except (KeyError, IndexError):
+                pass
+
         self.template["contents"].append(bubble)
 
     def add_pet_bubble(self, image, name, breed, emo, time):
