@@ -28,8 +28,8 @@ def copy_data():
     # 將filename和轉換欄位合併成一個DataFrame
     data = pd.concat([labels["filename"], one_hot_labels], axis=1)
     # print(f"labels.csv: {data}\n")
-    categories = os.listdir(data_path)[1:]
-
+    categories = os.listdir(data_path)
+    categories.pop('label.csv')
     folder_dir = [train_dir, val_dir, test_dir]
     # 複製照片到train、val以及test資料夾(6:2:2)
     # 訓練集、驗證集、測試集比例
