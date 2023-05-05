@@ -9,6 +9,7 @@ conv_base = VGG16(weights='imagenet',
                   include_top=False,             # 不包含 Full Connection
                   input_shape=(150, 150, 3))
 model = load_model(file_path/'model/0504.h5')
+emotion_labels = ['angry', 'happy', 'relaxed', 'sad']
 
 
 def predict_one_img(img_path):
@@ -22,10 +23,20 @@ def predict_one_img(img_path):
     features = np.reshape(features, (1, 4 * 4 * 512))
 
     prediction = model.predict(features)
-    emotion_labels = ['angry', 'happy', 'relaxed', 'sad']
     predicted_label = emotion_labels[np.argmax(prediction)]
     print(f"Predicted emotion: {predicted_label}")
+    return np.argmax(prediction)
 
 
-for img in os.listdir(file_path/'content/Dog Emotion/train/angry'):
-    predict_one_img(file_path/'content/Dog Emotion/train/angry'/img)
+all_count = []
+for i, label in enumerate(emotion_labels):
+    count = 0
+    for img in os.listdir(file_path/'content/Dog Emotion/val'/label):
+        emo_index = predict_one_img(
+            str(file_path/'content/Dog Emotion/val'/label/img))
+        if emo_index == i:
+            count += 1
+    print(f"{emotion_labels[i]},{count}")
+    all_count.append(count)
+print(all_count)
+    
