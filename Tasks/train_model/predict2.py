@@ -27,5 +27,5 @@ def predict_one_img(img_path):
     print(f"Predicted emotion: {predicted_label}")
 
 
-predict_one_img(
-    file_path/'content/Dog Emotion/test/angry/0da4j6Ehkb6Ml0YBRiWmsBU2wEMoXP409.jpg')
+for img in os.listdir(file_path/'content/Dog Emotion/train/angry'):
+    predict_one_img(file_path/'content/Dog Emotion/train/angry'/img)
