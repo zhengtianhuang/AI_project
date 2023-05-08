@@ -202,7 +202,7 @@ def return_image_breed(url):
     :param url : 圖片網址連結
     :return 品種
     '''
-    return ""
+    return "科基"
     params = {
         "engine": "google_lens",
         "url": url,

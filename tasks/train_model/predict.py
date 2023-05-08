@@ -6,12 +6,15 @@ import numpy as np
 import cv2
 from keras.models import load_model
 from pathlib import Path
+import os
 '''
 變數區
 '''
-filePath = Path(__file__).resolve().parent
+file_path = Path(__file__).resolve().parent
 model = load_model(
-    filePath/'0426.h5')  # 加載已經訓練好的模型
+    file_path/'model/0426.h5')  # 加載已經訓練好的模型
+emo = ["angry", "happy", "relaxed", "sad"]
+
 '''
 函式區
 '''
@@ -35,6 +38,18 @@ def predict_emotion(img_path):
     img = np.expand_dims(img, axis=0)
     # 進行預測
     predictions = model.predict(img)
-    emo = ["angry", "happy", "relax", "sad"]
-    print(predictions)
+    # print(emo[np.argmax(predictions)])
     return np.argmax(predictions)
+
+
+all_count = []
+for i, label in enumerate(emo):
+    count = 0
+    for img in os.listdir(file_path/'content/Dog Emotion/val'/label):
+        emo_index = predict_emotion(
+            str(file_path/'content/Dog Emotion/val'/label/img))
+        if emo_index == i:
+            count += 1
+    print(f"{emo[i]},{count}")
+    all_count.append(count)
+print(all_count)
