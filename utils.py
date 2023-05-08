@@ -112,7 +112,7 @@ class PetCreator:
         elif self.updateCol[user_id] == 1:  # 用戶按下更改圖片
             if self._update_pet_img(user_id, img_id, content):
                 self.updateCol[user_id] = 0  # 更改完後回復初始階段
-                return "成功更改"
+                return "照片更新成功！"
             return "這不是圖片！"
         elif self.updateCol[user_id] == 2:  # 用戶按下更改名字
             col_name = "pet_name"
@@ -202,6 +202,7 @@ def return_image_breed(url):
     :param url : 圖片網址連結
     :return 品種
     '''
+    return "科基"
     params = {
         "engine": "google_lens",
         "url": url,
@@ -257,9 +258,9 @@ def delta_time(time):
     seconds = int(delta_time.total_seconds())
     minutes = int(seconds/60)
     hours = int(minutes/60)
+
     if seconds < 0:
-        print("error")
-        return None
+        return 0
     elif seconds < 60:
         message = ("上次分析: " + str(seconds) + "秒鐘前")
         return message
@@ -270,5 +271,4 @@ def delta_time(time):
         message = ("上次分析: " + str(hours) + "小時前")
         return message
     else:
-        print(data_time)
         return data_time

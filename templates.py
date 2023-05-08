@@ -116,9 +116,9 @@ class Templates():
         bubble["body"]["contents"][2]["text"] = str(time)
 
         # 設定Footer的action data, 開頭數字為此人第幾隻寵物
-        bubble["footer"]["contents"][0]["action"]["data"] = f"{self.t_count}更改照片"
-        bubble["footer"]["contents"][1]["action"]["data"] = f"{self.t_count}更改名字"
-        bubble["footer"]["contents"][2]["action"]["data"] = f"{self.t_count}更改品種"
+        bubble["footer"]["contents"][0]["action"]["data"] = f"{self.t_count}請上傳新照片～"
+        bubble["footer"]["contents"][1]["action"]["data"] = f"{self.t_count}請輸入新名字～"
+        bubble["footer"]["contents"][2]["action"]["data"] = f"{self.t_count}請輸入新品種～"
         bubble["footer"]["contents"][3]["action"]["data"] = f"{self.t_count}刪除"
         bubble["footer"]["contents"][3]["action"]["text"] = "寵物資料"
 

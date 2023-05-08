@@ -4,13 +4,14 @@ import os
 import matplotlib.pyplot as plt
 from pathlib import Path
 import json
+from tensorflow.keras.models import load_model
 print(tf.version)
 filePath = Path(__file__).resolve().parent
 img_dir = filePath/'content/Dog Emotion'
-base_model = tf.keras.applications.InceptionV3(input_shape=(224, 224, 3),
-                                               include_top=False,
-                                               weights="imagenet")
-# https://www.tensorflow.org/api_docs/python/tf/keras/preprocessing/image/ImageDataGenerator
+# base_model = tf.keras.applications.InceptionV3(input_shape=(224, 224, 3),
+#                                                include_top=False,
+#                                                weights="imagenet")
+# # https://www.tensorflow.org/api_docs/python/tf/keras/preprocessing/image/ImageDataGenerator
 
 img_generator = tf.keras.preprocessing.image.ImageDataGenerator(
     # rotation_range=90,
@@ -36,14 +37,19 @@ img_generator_flow_valid = img_generator.flow_from_directory(
     batch_size=32,
     shuffle=True,
     subset="validation")
-imgs, labels = next(iter(img_generator_flow_train))
-base_model.trainable = False
-model = tf.keras.Sequential([
-    base_model,
-    tf.keras.layers.MaxPooling2D(),
-    tf.keras.layers.Flatten(),
-    tf.keras.layers.Dense(4, activation="softmax")  # 4 classes
-])
+# imgs, labels = next(iter(img_generator_flow_train))
+# base_model.trainable = False
+# model = tf.keras.Sequential([
+#     base_model,
+#     tf.keras.layers.MaxPooling2D(),
+#     tf.keras.layers.Flatten(),
+#     tf.keras.layers.Dropout(0.5),
+#     tf.keras.layers.Dense(256, activation='relu', kernel_regularizer=tf.keras.regularizers.l2(0.001)),
+#     tf.keras.layers.Dropout(0.5),
+#     tf.keras.layers.Dense(4, activation="softmax")
+# ])  # 4 classes
+model = load_model(
+    filePath/'model/0504_10epeh500pochs.h5')  # 加載已經訓練好的模型
 model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.0001),
               loss=tf.keras.losses.CategoricalCrossentropy(),
               metrics=[tf.keras.metrics.CategoricalAccuracy()])
