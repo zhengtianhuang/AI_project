@@ -134,9 +134,9 @@ def db_delete_pet(db, user_id, num):
     :param num :  第幾隻寵物(1開始)
     '''
     with db.cursor() as cursor:
-        query = "DELETE FROM pets_emotions WHERE pet_id=(SELECT pet_id FROM pets WHERE user_id = %s)"
-        cursor.execute(query, (user_id,))
-        query = "DELETE FROM pets WHERE pet_id=(SELECT pet_id FROM pets WHERE user_id = %s LIMIT 1 OFFSET %s)"
+        query = "DELETE FROM `pets_emotions` WHERE `pet_id` = (SELECT `pet_id` FROM `pets` WHERE `user_id` = %s LIMIT 1 OFFSET %s)"
+        cursor.execute(query, (user_id, num))
+        query = "DELETE FROM `pets` WHERE `pet_id` = (SELECT `pet_id` FROM `pets` WHERE `user_id` = %s LIMIT 1 OFFSET %s)"
         cursor.execute(query, (user_id, num))
         cursor.close()
 
@@ -189,3 +189,25 @@ def db_search_emotion(db, pet_id):
             return result
         # 無情緒分析資料
         return 0
+
+
+@connect_database
+def db_get_emolist(db):
+    '''
+    抓取寵物情緒編號、情緒種類
+
+    :return emo_list 
+    result = ((0, '生氣'), (1, '開心'), (2, '放鬆'), (3, '難過'))
+    emo_list = ['生氣', '開心', '放鬆', '難過']
+    '''
+    with db.cursor() as cursor:
+        query = "SELECT * FROM `emotions`"
+        cursor.execute(query)
+        result = cursor.fetchall()
+        if result:
+            emo_list = []
+            for emo in result:
+                emo_list.append(emo[1])
+            return emo_list
+        else:
+            return None
