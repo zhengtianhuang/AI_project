@@ -249,6 +249,7 @@ def is_dog(image_path):
 def delta_time(time):
     '''
     判斷資料更新時間過多久
+    :param time : 要計算的時間(年-月-日 時:分:秒)
     :return 幾秒/幾分鐘/幾小時前/日期
     '''
     current_time = datetime.now()
@@ -272,3 +273,24 @@ def delta_time(time):
         return message
     else:
         return data_time
+
+
+def return_pet_restaurant_details(name):
+    '''
+    抓取google knowledge graph中的商家資訊
+
+    :param name : 店家名字
+    '''
+    params = {
+        "api_key": '7bec1da4ca2d934e97d542f96113cad7e2b7052e13098b7741416c75e8221073',
+        "engine": "google",
+        "q": name,
+        "google_domain": "google.com.tw",
+        "hl": "zh-tw",
+        "gl": "tw",
+        "tbs": "restaurant"
+    }
+    request_url = "https://serpapi.com/search.json?engine=google&q=" + name
+    response = requests.get(request_url, data=params)
+    response.encoding = 'uft-8'
+    return response.json()

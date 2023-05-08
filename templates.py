@@ -7,6 +7,7 @@ from pathlib import Path
 import requests
 import json
 import os
+from utils import return_pet_restaurant_details
 '''
 變數區
 '''
@@ -28,13 +29,13 @@ class Templates():
         }
         self.t_count = 0
 
-    def add_restaurant_bubble(self, image, name, rating, add, is_open):
+    def add_restaurant_bubble(self, image, name, rating, address, is_open):
         '''
         將寵物餐廳資訊加入氣泡中並顯示在Flex Message中
         :param image : 圖片的網址
         :param name : 名稱
         :param rating : 評分
-        :param add: 
+        :param address: 餐廳地址
         :param is_open : 是否營業中
         '''
         bubble = load(
@@ -43,7 +44,7 @@ class Templates():
         bubble["hero"]["url"] = str(image)
         bubble["body"]["contents"][0]["text"] = str(name)
         bubble["body"]["contents"][1]["contents"][5]["text"] = str(rating)
-        bubble["body"]["contents"][3]["contents"][1]["text"] = str(add)
+        bubble["body"]["contents"][3]["contents"][1]["text"] = str(address)
         bubble["body"]["contents"][4]["contents"][1]["text"] = str(is_open)
 
         # 替換的星星圖片
@@ -58,39 +59,26 @@ class Templates():
         # 判斷評論的小數部分轉換的星星樣子，小數點落在3-7之間為半顆星
         dot_star = round(rating % 1 * 10)
         if dot_star < 8 and dot_star > 2:
-            bubble["body"]["contents"][1]["contents"][4-empty_star]["url"] = HalfStar
+            bubble["body"]["contents"][1]["contents"][4 -
+                                                      empty_star]["url"] = HalfStar
         elif dot_star <= 2:
-            bubble["body"]["contents"][1]["contents"][4-empty_star]["url"] = EmptyStar
-
-        # 抓取google knowledge graph中的商家資訊
-        params = {
-                    "api_key": '7bec1da4ca2d934e97d542f96113cad7e2b7052e13098b7741416c75e8221073',
-                    "engine": "google",
-                    "q": name,
-                    "google_domain": "google.com.tw",
-                    "hl": "zh-tw",
-                    "gl": "tw",
-                    "tbs": "restaurant"
-                }
-        request_url = "https://serpapi.com/search.json?engine=google&q=" + name
-        response = requests.get(request_url, data=params)
-        response.encoding = 'uft-8'
-        content = response.json()
-        if "knowledge_graph" not in content:
+            bubble["body"]["contents"][1]["contents"][4 -
+                                                      empty_star]["url"] = EmptyStar
+        content = return_pet_restaurant_details(name)
+        try:
+            if "website" in content["knowledge_graph"]:
+                website = content["knowledge_graph"]["website"]
+                bubble["hero"]["action"]["uri"] = website
+            if "菜單_links" in content["knowledge_graph"]:
+                menu_link = content["knowledge_graph"]["菜單_links"][0]["link"]
+                bubble["footer"]["contents"][0]["action"]["uri"] = menu_link
+            if "merchant_description" in content["knowledge_graph"]:
+                merchant_desc = content["knowledge_graph"]["merchant_description"]
+                bubble["footer"]["contents"][1]["action"][
+                    "data"] = f"action={merchant_desc}&message_id=get_m_d"
+        except (KeyError, IndexError) as ex:
+            print(ex)
             pass
-        else:
-            try:
-                if "website" in content["knowledge_graph"]:
-                    website = content["knowledge_graph"]["website"]
-                    bubble["hero"]["action"]["uri"] = website
-                if "菜單_links" in content["knowledge_graph"]:
-                    menu_link = content["knowledge_graph"]["菜單_links"][0]["link"]
-                    bubble["footer"]["contents"][0]["action"]["uri"] = menu_link
-                if "merchant_description" in content["knowledge_graph"]:
-                    merchant_desc = content["knowledge_graph"]["merchant_description"]
-                    bubble["footer"]["contents"][1]["action"]["data"] = f"action={merchant_desc}&message_id=get_m_d"
-            except (KeyError, IndexError):
-                pass
 
         self.template["contents"].append(bubble)
 

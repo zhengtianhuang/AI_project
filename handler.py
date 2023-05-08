@@ -84,7 +84,7 @@ def handle_location(event):
     '''
     restaurants = return_pet_restaurants(
         event.message.latitude, event.message.longitude)
-    rtTemplate = Templates()
+    rt_template = Templates()
     if len(restaurants) == 0:
         line_bot_api.reply_message(
             event.reply_token,
@@ -93,7 +93,7 @@ def handle_location(event):
         return
     for i, d in enumerate(restaurants):
         try:
-            rtTemplate.add_restaurant_bubble(
+            rt_template.add_restaurant_bubble(
                 d['resPhoto'], d['resName'], d['resRating'], d["resAdd"], d["resOpen"])
         except Exception as e:
             print(e)
@@ -101,7 +101,7 @@ def handle_location(event):
             break
     line_bot_api.reply_message(
         event.reply_token,
-        FlexSendMessage("flex", rtTemplate.template)
+        FlexSendMessage("flex", rt_template.template)
     )
 
 
@@ -202,7 +202,7 @@ def handle_message(event):
             TextSendMessage(
                 f"您的寵物現在很{emo_list[int(emo_arg)]}!")
         )
-    
+
     #
     match_m_d = re.search(r'message_id=get_m_d', s)
     if match_m_d:
@@ -211,5 +211,3 @@ def handle_message(event):
             event.reply_token,
             TextSendMessage(action)
         )
-
-
