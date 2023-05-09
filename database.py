@@ -44,7 +44,7 @@ def db_insert_user_if_not_exist(db, user_id):
     '''
     with db.cursor() as cursor:
         with db.cursor() as cursor:
-            sql = 'INSERT INTO `users` (`user_id`) VALUES (%s) ON DUPLICATE KEY UPDATE `user_id` = `user_id`'
+            sql = 'INSERT INTO `user` (`line_user_id`) VALUES (%s) ON DUPLICATE KEY UPDATE `line_user_id` = `line_user_id`'
             cursor.execute(sql, (user_id,))
             if cursor.rowcount > 0:
                 print("資料加入DB成功")
@@ -53,7 +53,7 @@ def db_insert_user_if_not_exist(db, user_id):
 
 
 @connect_database
-def db_insert_pet_if_not_exist(db, user_id, pet_name, pet_photo, pet_breed):
+def db_insert_pet_if_not_exist(db, line_user_id, pet_name, pet_photo, pet_breed):
     """
     向資料庫的 `pets` 表格中新增寵物資料，如果已經存在則不做任何操作。
 
@@ -65,20 +65,31 @@ def db_insert_pet_if_not_exist(db, user_id, pet_name, pet_photo, pet_breed):
     """
     with db.cursor() as cursor:
         # 檢查該條紀錄是否已經存在
-        sql = 'SELECT `user_id`, `pet_name`,`pet_breed` FROM `pets` WHERE `user_id` = %s AND `pet_name` = %s AND `pet_breed` = %s'
-        cursor.execute(sql, (user_id, pet_name, pet_breed))
+        sql = '''
+            SELECT p.`user_id`, p.`pet_name`, p.`pet_breed`
+            FROM `pet` p
+            JOIN `user` u ON p.`user_id` = u.`id`
+            WHERE u.`line_user_id` = %s AND p.`pet_name` = %s AND p.`pet_breed` = %s
+        '''
+        cursor.execute(sql, (line_user_id, pet_name, pet_breed))
         result = cursor.fetchone()
         if result:
             print("資料已存在DB")
+            return True
         else:
+            # 獲取 user_id
+            sql = 'SELECT `id` FROM `user` WHERE `line_user_id` = %s'
+            cursor.execute(sql, (line_user_id,))
+            user_id = cursor.fetchone()[0]
             # 插入新紀錄
-            sql = 'INSERT INTO `pets`(`user_id`, `pet_name`, `pet_photo`, `pet_breed`) VALUES (%s , %s , %s , %s)'
+            sql = 'INSERT INTO `pet`(`user_id`, `pet_name`, `pet_photo`, `pet_breed`) VALUES (%s, %s, %s, %s)'
             cursor.execute(sql, (user_id, pet_name, pet_photo, pet_breed))
             print("資料加入DB成功")
+            return False
 
 
 @connect_database
-def db_search_pet(db, user_id):
+def db_search_pet(db, line_user_id):
     """
     連線資料庫並搜尋指定使用者的寵物資料。
 
@@ -93,8 +104,13 @@ def db_search_pet(db, user_id):
             - pet_id
     """
     with db.cursor() as cursor:
-        query = "SELECT `pet_name`, `pet_photo`, `pet_breed`, `pet_id` FROM `pets` WHERE `user_id` = %s"
-        cursor.execute(query, (user_id,))
+        sql = '''
+            SELECT p.`pet_name`, `pet_photo`, p.`pet_breed`, p.`id`
+            FROM `pet` p
+            JOIN `user` u ON p.`user_id` = u.`id`
+            WHERE u.`line_user_id` = %s
+        '''
+        cursor.execute(sql, (line_user_id,))
         result = cursor.fetchall()
         for row in result:
             print("Pet name: {}, photo: {}, breed: {}".format(
@@ -103,7 +119,7 @@ def db_search_pet(db, user_id):
 
 
 @connect_database
-def db_update_pet(db, column_name, data, user_id, num):
+def db_update_pet(db, column_name, data, line_user_id, num):
     """
     更新寵物資料表格中的特定欄位資料
 
@@ -111,14 +127,22 @@ def db_update_pet(db, column_name, data, user_id, num):
     :param column_name: 要更新的欄位名稱
     :param data: 要更新的資料
     :param user_id: 寵物所屬的使用者ID
-    :param num: 要更新第幾個寵物資料
+    :param num: 要更新第幾個寵物資料(從0開始)
     """
     with db.cursor() as cursor:
-        # 使用format方法將欄位名稱加入SQL指令中
-        query = "UPDATE pets SET {}=%s WHERE pet_id=(SELECT pet_id FROM pets WHERE user_id = %s LIMIT 1 OFFSET %s)".format(
-            column_name)
+        sql = '''
+            UPDATE `pet` AS p
+            INNER JOIN `user` AS u ON p. `user_id` = u. `id`
+            SET %s = %s
+            WHERE p. `id` = (
+                SELECT `id` 
+                FROM pet
+                WHERE `line_user_id` = %s 
+                LIMIT 1 OFFSET %s
+            )
+        '''
         # 使用execute方法執行SQL指令
-        cursor.execute(query, (data, user_id, num))
+        cursor.execute(sql, (column_name, data, line_user_id, num))
         if cursor.rowcount > 0:
             print("更新成功")
         else:
@@ -126,7 +150,7 @@ def db_update_pet(db, column_name, data, user_id, num):
 
 
 @connect_database
-def db_delete_pet(db, user_id, num):
+def db_delete_pet(db, line_user_id, num):
     '''
     刪除寵物資料
 
@@ -134,35 +158,50 @@ def db_delete_pet(db, user_id, num):
     :param num :  第幾隻寵物(1開始)
     '''
     with db.cursor() as cursor:
-        query = "DELETE FROM `pets_emotions` WHERE `pet_id` = (SELECT `pet_id` FROM `pets` WHERE `user_id` = %s LIMIT 1 OFFSET %s)"
-        cursor.execute(query, (user_id, num))
-        query = "DELETE FROM `pets` WHERE `pet_id` = (SELECT `pet_id` FROM `pets` WHERE `user_id` = %s LIMIT 1 OFFSET %s)"
-        cursor.execute(query, (user_id, num))
+        query = '''
+            DELETE `pet`, `emotion_record` 
+            FROM `pet` 
+            LEFT JOIN `emotion_record` ON `pet`.`id` = `emotion_record`.`pet_id`
+            WHERE `pet`.`id` = (
+                SELECT `id` FROM (
+                    SELECT `pet`.`id` 
+                    FROM `pet`
+                    JOIN `user` ON `pet`.`user_id` = `user`.`id`
+                    WHERE `user`.`line_user_id` = %s 
+                    LIMIT 1 OFFSET %s
+                ) AS `subquery`
+            )
+        '''
+        cursor.execute(query, (line_user_id, num))
+        if cursor.rowcount > 0:
+            print("刪除成功")
+        else:
+            print("沒有任何資料被刪除")
         cursor.close()
 
 
 @connect_database
-def db_append_emotion(db, pet_id, pet_emotion):
+def db_append_emotion(db, pet_id, pet_emotion_id):
     '''
-    新增寵物情緒(資料庫只儲存最近一筆情緒分析情果)
+    新增寵物情緒(資料庫只儲存最近一筆情緒分析結果)
 
     :param pet_id : pet在資料庫分配到的id(pet_id)
-    :param pet_emotion :  分析情緒結果
+    :param pet_emotion_id :  分析情緒結果
     '''
     with db.cursor() as cursor:
-        query = "SELECT * FROM `pets_emotions` WHERE `pet_id` = %s"
+        query = "SELECT * FROM `emotion_record` WHERE `pet_id` = %s"
         cursor.execute(query, (pet_id))
         result = cursor.fetchone()
         if result:
-            update = "UPDATE `pets_emotions` SET `pet_emotion`= %s WHERE `pet_id`= %s"
-            cursor.execute(update, (pet_emotion, pet_id))
+            update = "UPDATE `emotion_record` SET `emotion_id`= %s WHERE `pet_id`= %s"
+            cursor.execute(update, (pet_emotion_id, pet_id))
             if cursor.rowcount > 0:
                 print("更新成功")
             else:
                 print("沒有任何資料被更新")
         else:
-            append = "INSERT INTO `pets_emotions`(`pet_id`, `pet_emotion`) VALUES (%s,%s)"
-            cursor.execute(append, (pet_id, pet_emotion))
+            append = "INSERT INTO `emotion_record`(`pet_id`, `emotion_id`) VALUES (%s,%s)"
+            cursor.execute(append, (pet_id, pet_emotion_id))
             if cursor.rowcount > 0:
                 print("新增成功")
             else:
@@ -177,12 +216,13 @@ def db_search_emotion(db, pet_id):
     :param pet_id : pet在資料庫分配到的id(get_id)
     :return result : 無資料時 
                         - 0
-                     有資料
-                        - pet-emotion
+                     有資料(tuple)
+                        - pet-emotion-id
                         - update-time
+                        ex. ('0', datetime.datetime(2023, 5, 9, 11, 24, 44))
     '''
     with db.cursor() as cursor:
-        query = "SELECT `pet_emotion`, `updated_time` FROM `pets_emotions` WHERE `pet_id` = %s"
+        query = "SELECT `emotion_id`, `updated_time` FROM `emotion_record` WHERE `pet_id` = %s"
         cursor.execute(query, (pet_id))
         result = cursor.fetchone()
         if result:  # 有情緒分析資料
@@ -201,7 +241,7 @@ def db_get_emolist(db):
     emo_list = ['生氣', '開心', '放鬆', '難過']
     '''
     with db.cursor() as cursor:
-        query = "SELECT * FROM `emotions`"
+        query = "SELECT * FROM `emotion`"
         cursor.execute(query)
         result = cursor.fetchall()
         if result:
