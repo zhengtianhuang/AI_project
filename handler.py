@@ -57,8 +57,8 @@ def handle_message(event):
                     os.getenv('WEBHOOK_URL'), 'static/img', row[1])
                 pet_id = row[3]
                 emo_result = db_search_emotion(pet_id)
-                if emo_result:
-                    emo_index = emo_result[0]
+                if emo_result != None:
+                    emo_index = int(emo_result[0])
                     updated_time = emo_result[1]
                     petTemplate.add_pet_bubble(
                         imgUrl, row[0], row[2], emo_list[emo_index], delta_time(updated_time))
@@ -123,7 +123,7 @@ def handle_message(event):
             return_text = if_update_pet
         elif if_create_pet:
             return_text = if_create_pet
-        else:  # 情緒分析i
+        else:  # 情緒分析
             content = line_bot_api.get_message_content(img_id)
             img_name = pet._save_img(img_id, content)
             pet_name_tp_action = []

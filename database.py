@@ -133,7 +133,7 @@ def db_update_pet(db, column_name, data, line_user_id, num):
         sql = '''
             UPDATE `pet` AS p
             INNER JOIN `user` AS u ON p. `user_id` = u. `id`
-            SET %s = %s
+            SET {} = %s
             WHERE p. `id` = (
                 SELECT `id` 
                 FROM pet
@@ -142,7 +142,8 @@ def db_update_pet(db, column_name, data, line_user_id, num):
             )
         '''
         # 使用execute方法執行SQL指令
-        cursor.execute(sql, (column_name, data, line_user_id, num))
+        cursor.execute(sql.format(column_name), (data, line_user_id, num))
+
         if cursor.rowcount > 0:
             print("更新成功")
         else:
@@ -215,7 +216,7 @@ def db_search_emotion(db, pet_id):
 
     :param pet_id : pet在資料庫分配到的id(get_id)
     :return result : 無資料時 
-                        - 0
+                        - None
                      有資料(tuple)
                         - pet-emotion-id
                         - update-time
@@ -228,7 +229,7 @@ def db_search_emotion(db, pet_id):
         if result:  # 有情緒分析資料
             return result
         # 無情緒分析資料
-        return 0
+        return None
 
 
 @connect_database
