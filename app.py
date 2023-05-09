@@ -2,7 +2,7 @@
 '''
 引用庫
 '''
-from flask import Flask, request, abort
+from flask import Flask, request, abort, render_template, url_for
 from linebot.exceptions import (
     InvalidSignatureError
 )
@@ -17,12 +17,18 @@ app = Flask(__name__)
 '''
 
 
-@app.route("/", methods=['GET'])
+@app.route("/test", methods=['GET'])
 def test():
     return "ok"
 
 
-@app.route("/callback", methods=['POST'])
+@app.route("/notfound", methods=['GET'])
+def print_img():
+    image_url = url_for('static', filename='img/no_data.png')
+    return render_template("no_data.html", image_url=image_url)
+
+
+@ app.route("/callback", methods=['POST'])
 def callback():
     '''
     處理linebot伺服器回傳data
@@ -39,4 +45,4 @@ def callback():
 
 
 if __name__ == "__main__":
-    app.run(port=8080,debug=True)
+    app.run(port=8080, debug=True)
