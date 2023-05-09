@@ -132,16 +132,19 @@ def db_update_pet(db, column_name, data, line_user_id, num):
     with db.cursor() as cursor:
         sql = '''
             UPDATE `pet` AS p
-            INNER JOIN `user` AS u ON p. `user_id` = u. `id`
             SET {} = %s
             WHERE p. `id` = (
-                SELECT `id` 
-                FROM pet
-                WHERE `line_user_id` = %s 
+                SELECT p.`id` 
+                FROM `pet` AS p
+                INNER JOIN `user` AS u ON p.`user_id` = u.`id`
+                WHERE u.`line_user_id` = %s 
                 LIMIT 1 OFFSET %s
             )
         '''
         # 使用execute方法執行SQL指令
+        print("+"*20)
+        print(cursor.mogrify(sql.format(column_name), (data, line_user_id, num)))
+        print("+"*20)
         cursor.execute(sql.format(column_name), (data, line_user_id, num))
 
         if cursor.rowcount > 0:

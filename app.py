@@ -28,7 +28,7 @@ def test():
 @app.route("/", methods=['GET'])
 def print_img():
     image_url = url_for('static', filename='img/cant_see.png')
-    return render_template("no_data.html", image_url=image_url)
+    return render_template("cant_see.html", image_url=image_url)
 
 
 @ app.route("/callback", methods=['POST'])

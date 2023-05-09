@@ -157,9 +157,6 @@ def handle_message(event):
     處理postback訊息
     '''
     s = event.postback.data
-    print('='*20)
-    print('s = ' + s)
-    print('='*20)
     user_id = event.source.user_id
     updata_matchs = []  # 建立符合的pattern
     emo_match = re.match(r'(\w+)新增(\d+)名字(\w+)情緒(\d+)', s)

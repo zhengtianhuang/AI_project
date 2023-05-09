@@ -36,7 +36,6 @@ def return_pet_restaurants(latitude, longitude):
     res_info_all = []  # 存放所有找到的寵物餐廳資訊
     url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?"
     api_key = os.getenv("GOOGLE_PLACES_API_KEY")
-    print(api_key)
     types = "pet_store,veterinary_care"
     keyword = "寵物餐廳"
     radius = str(500)  # 範圍
