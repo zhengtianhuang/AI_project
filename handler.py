@@ -3,22 +3,21 @@
 引用庫
 '''
 from utils import (return_pet_restaurants, PetCreator, is_dog, delta_time)
-from templates import Templates
+from line_templates import Templates
 from linebot import (LineBotApi, WebhookHandler)
 from linebot.models import (ButtonsTemplate, TemplateSendMessage, PostbackTemplateAction,
                             TextSendMessage, FlexSendMessage, TextMessage, LocationMessage, MessageEvent, ImageMessage, PostbackEvent)
-from dotenv import load_dotenv
 import os
 from database import db_delete_pet, db_search_pet, db_append_emotion, db_search_emotion, db_get_emolist
 from pathlib import Path
 import re
 from predict import predict_emotion
+from dotenv import load_dotenv
 '''
 變數區
 '''
-# 載入 .env 文件中的環境變數
-load_dotenv(str(Path(__file__).resolve().parent/"Secret/secret.env"))
 # 使用 os 模組獲取環境變數的值
+load_dotenv(str(Path(__file__).resolve().parent/"Secret/secret.env"))
 handler = WebhookHandler(os.getenv('CHANNEL_ACCESS_TOKEN'))
 line_bot_api = LineBotApi(os.getenv('CHANNEL_SECRET'))
 img_path = Path(__file__).resolve().parent/'static/img'

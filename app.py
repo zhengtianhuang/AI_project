@@ -2,16 +2,19 @@
 '''
 引用庫
 '''
-from flask import Flask, request, abort, render_template, url_for
+from handler import handler
+import os
+from pathlib import Path
+from json import load, dump
 from linebot.exceptions import (
     InvalidSignatureError
 )
-# =============副程式==================
-from handler import handler
+from flask import Flask, request, abort, render_template, url_for
 '''
 變數區
 '''
 app = Flask(__name__)
+bubblePath = Path(__file__).resolve().parent/'static/json/bubbles'
 '''
 主程式
 '''
@@ -22,9 +25,9 @@ def test():
     return "ok"
 
 
-@app.route("/notfound", methods=['GET'])
+@app.route("/", methods=['GET'])
 def print_img():
-    image_url = url_for('static', filename='img/no_data.png')
+    image_url = url_for('static', filename='img/cant_see.png')
     return render_template("no_data.html", image_url=image_url)
 
 
@@ -44,5 +47,24 @@ def callback():
     return 'OK'
 
 
+def initial():
+    '''
+    只需一開始執行一次
+    '''
+
+    restaurant_bubble = load(
+        open(f'{bubblePath}/restaurant.json', 'r', encoding='utf-8'))
+    pet_bubble = load(open(f'{bubblePath}/pet.json', 'r', encoding='utf-8'))
+    restaurant_bubble["hero"]["action"]["uri"] = os.getenv("WEBHOOK_URL")
+    pet_bubble["hero"]["action"]["uri"] = os.getenv("WEBHOOK_URL")
+    # 寫回 JSON 檔案
+    with open(f'{bubblePath}/restaurant.json', 'w') as f:
+        dump(restaurant_bubble, f)
+    # 寫回 JSON 檔案
+    with open(f'{bubblePath}/pet.json', 'w') as f:
+        dump(pet_bubble, f)
+
+
 if __name__ == "__main__":
+    initial()
     app.run(port=8080, debug=True)

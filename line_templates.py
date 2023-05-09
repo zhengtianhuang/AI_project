@@ -4,9 +4,6 @@
 '''
 from json import load
 from pathlib import Path
-import requests
-import json
-import os
 from utils import return_pet_restaurant_details
 '''
 變數區
@@ -39,7 +36,7 @@ class Templates():
         :param is_open : 是否營業中
         '''
         bubble = load(
-            open(f'{bubblePath}/restaurantBubble.json', 'r', encoding='utf-8'))
+            open(f'{bubblePath}/restaurant.json', 'r', encoding='utf-8'))
         # print(bubble)
         bubble["hero"]["url"] = str(image)
         bubble["body"]["contents"][0]["text"] = str(name)
