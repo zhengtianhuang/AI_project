@@ -36,6 +36,7 @@ def return_pet_restaurants(latitude, longitude):
     res_info_all = []  # 存放所有找到的寵物餐廳資訊
     url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?"
     api_key = os.getenv("GOOGLE_PLACES_API_KEY")
+    print(api_key)
     types = "pet_store,veterinary_care"
     keyword = "寵物餐廳"
     radius = str(500)  # 範圍
@@ -202,11 +203,10 @@ def return_image_breed(url):
     :param url : 圖片網址連結
     :return 品種
     '''
-    return "科基"
     params = {
         "engine": "google_lens",
         "url": url,
-        "api_key": "7bec1da4ca2d934e97d542f96113cad7e2b7052e13098b7741416c75e8221073",
+        "api_key": str(os.getenv("GOOGLE_SEARCH_API_KEY")),
         "hl": "zh-tw"
     }
     request_url = "https://serpapi.com/search.json?engine=google_lens&url=" + url
@@ -282,7 +282,7 @@ def return_pet_restaurant_details(name):
     :param name : 店家名字
     '''
     params = {
-        "api_key": os.getenv("GOOGLE_SEARCH_API_KEY"),
+        "api_key": str(os.getenv("GOOGLE_SEARCH_API_KEY")),
         "engine": "google",
         "q": name,
         "google_domain": "google.com.tw",
