@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- 主機： localhost
--- 產生時間： 2023 年 05 月 09 日 05:58
+-- 產生時間： 2023 年 05 月 10 日 07:40
 -- 伺服器版本： 10.4.27-MariaDB
 -- PHP 版本： 8.2.0
 
@@ -39,10 +39,10 @@ CREATE TABLE `emotion` (
 --
 
 INSERT INTO `emotion` (`id`, `emotion`, `created_time`, `updated_time`) VALUES
-(1, '開心', '2023-05-08 03:19:12', '2023-05-08 03:22:31'),
-(2, '生氣', '2023-05-08 03:19:12', '2023-05-08 03:22:31'),
-(3, '難過', '2023-05-08 03:19:12', '2023-05-08 03:22:31'),
-(4, '放鬆', '2023-05-08 03:19:12', '2023-05-08 03:22:31');
+(1, '生氣', '2023-05-08 03:19:12', '2023-05-10 05:39:08'),
+(2, '開心', '2023-05-08 03:19:12', '2023-05-10 05:39:13'),
+(3, '放鬆', '2023-05-08 03:19:12', '2023-05-10 05:39:19'),
+(4, '難過', '2023-05-08 03:19:12', '2023-05-10 05:39:46');
 
 -- --------------------------------------------------------
 
@@ -58,6 +58,13 @@ CREATE TABLE `emotion_record` (
   `updated_time` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   `created_time` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- 傾印資料表的資料 `emotion_record`
+--
+
+INSERT INTO `emotion_record` (`id`, `pet_id`, `emotion_photo`, `emotion_id`, `updated_time`, `created_time`) VALUES
+(7, '57', NULL, '1', '2023-05-10 11:28:02', '2023-05-10 03:28:02');
 
 -- --------------------------------------------------------
 
@@ -75,6 +82,13 @@ CREATE TABLE `pet` (
   `updated_time` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- 傾印資料表的資料 `pet`
+--
+
+INSERT INTO `pet` (`id`, `user_id`, `pet_name`, `pet_photo`, `pet_breed`, `created_time`, `updated_time`) VALUES
+(57, '26', '狗狗', '182512277102302119-1683620990.jpg', '未知', '2023-05-09 08:29:51', '2023-05-09 08:29:51');
+
 -- --------------------------------------------------------
 
 --
@@ -87,6 +101,14 @@ CREATE TABLE `user` (
   `created_time` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_time` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- 傾印資料表的資料 `user`
+--
+
+INSERT INTO `user` (`id`, `line_user_id`, `created_time`, `updated_time`) VALUES
+(26, 'U751dd717d052680824fd250ddb7a7a55', '2023-05-09 08:29:51', '2023-05-09 08:29:51'),
+(27, 'U99b18d2a7c6d406533eef42acaf65b56', '2023-05-10 03:35:48', '2023-05-10 03:35:48');
 
 --
 -- 已傾印資料表的索引
@@ -136,19 +158,19 @@ ALTER TABLE `emotion`
 -- 使用資料表自動遞增(AUTO_INCREMENT) `emotion_record`
 --
 ALTER TABLE `emotion_record`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- 使用資料表自動遞增(AUTO_INCREMENT) `pet`
 --
 ALTER TABLE `pet`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=57;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=59;
 
 --
 -- 使用資料表自動遞增(AUTO_INCREMENT) `user`
 --
 ALTER TABLE `user`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=28;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
