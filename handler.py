@@ -73,14 +73,17 @@ def handle_message(event):
     elif message == "功能介紹":
         line_bot_api.reply_message(
             event.reply_token,
-            [ImageSendMessage(preview_image_url=static_path/'img/5.png', original_content_url=static_path/'img/5.png'),
-             ImageSendMessage(preview_image_url=static_path/'img/6.png', original_content_url=static_path/'img/6.png')]
-        )
+            [ImageSendMessage(preview_image_url=os.path.join(
+                os.getenv('WEBHOOK_URL'), 'static', 'img', '5.png'), original_content_url=os.path.join(
+                os.getenv('WEBHOOK_URL'), 'static', 'img', '5.png')), ImageSendMessage(preview_image_url=os.path.join(
+                    os.getenv('WEBHOOK_URL'), 'static', 'img', '6.png'), original_content_url=os.path.join(os.getenv('WEBHOOK_URL'), 'static', 'img', '6.png'))])
+
     elif message == "寵物情緒分析":
         line_bot_api.reply_message(
             event.reply_token,
-            ImageSendMessage(preview_image_url=static_path/'img/6.png',
-                             original_content_url=static_path/'img/6.png')
+            ImageSendMessage(preview_image_url=os.path.join(
+                os.getenv('WEBHOOK_URL'), 'static', 'img', '6.png'), original_content_url=os.path.join(os.getenv('WEBHOOK_URL'), 'static', 'img', '6.png')
+            )
         )
 
     line_bot_api.reply_message(
@@ -90,7 +93,7 @@ def handle_message(event):
     )
 
 
-@handler.add(MessageEvent, message=LocationMessage)
+@ handler.add(MessageEvent, message=LocationMessage)
 def handle_location(event):
     '''
     處理位置訊息
@@ -118,7 +121,7 @@ def handle_location(event):
     )
 
 
-@handler.add(MessageEvent, message=ImageMessage)
+@ handler.add(MessageEvent, message=ImageMessage)
 def handle_message(event):
     '''
     處理圖片訊息
@@ -166,7 +169,7 @@ def handle_message(event):
     )
 
 
-@handler.add(PostbackEvent)
+@ handler.add(PostbackEvent)
 def handle_message(event):
     '''
     處理postback訊息
