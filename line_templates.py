@@ -3,6 +3,7 @@
 引用庫
 '''
 from json import load
+import os
 from pathlib import Path
 from utils import return_pet_restaurant_details
 '''
@@ -66,13 +67,21 @@ class Templates():
             if "website" in content["knowledge_graph"]:
                 website = content["knowledge_graph"]["website"]
                 bubble["hero"]["action"]["uri"] = website
+            else:
+                bubble["hero"]["action"]["uri"] = os.getenv("WEBHOOK_URL")
             if "菜單_links" in content["knowledge_graph"]:
                 menu_link = content["knowledge_graph"]["菜單_links"][0]["link"]
                 bubble["footer"]["contents"][0]["action"]["uri"] = menu_link
+            else:
+                bubble["footer"]["contents"][0]["action"]["uri"] = os.getenv(
+                    "WEBHOOK_URL")
             if "merchant_description" in content["knowledge_graph"]:
                 merchant_desc = content["knowledge_graph"]["merchant_description"]
                 bubble["footer"]["contents"][1]["action"][
                     "data"] = f"action={merchant_desc}&message_id=get_m_d"
+            else:
+                bubble["footer"]["contents"][1]["action"][
+                    "data"] = os.getenv("WEBHOOK_URL")
         except (KeyError, IndexError) as ex:
             print(ex)
             pass
