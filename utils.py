@@ -210,16 +210,20 @@ def return_image_breed(url):
     :param url : 圖片網址連結
     :return 品種
     '''
+    # 轉換url成使用lens用法網址
+    first_url = url.replace('/', '%2F')
+    second_url = first_url.replace(':', '%3A')
     params = {
         "engine": "google_lens",
-        "url": url,
+        "url": second_url,
         "api_key": str(os.getenv("GOOGLE_SEARCH_API_KEY")),
         "hl": "zh-tw"
     }
-    request_url = "https://serpapi.com/search.json?engine=google_lens&url=" + url
+    request_url = "https://serpapi.com/search.json?engine=google_lens&url=" + second_url
     response = requests.get(request_url, data=params)
     response.encoding = "utf-8"
     content = response.json()
+    print(content)
     try:
         breed = (content['knowledge_graph'][0])['title']
     except:
@@ -301,3 +305,4 @@ def return_pet_restaurant_details(name):
     response = requests.get(request_url, data=params)
     response.encoding = 'uft-8'
     return response.json()
+
