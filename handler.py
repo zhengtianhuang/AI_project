@@ -20,7 +20,7 @@ from dotenv import load_dotenv
 load_dotenv(str(Path(__file__).resolve().parent/"Secret/secret.env"))
 handler = WebhookHandler(os.getenv('CHANNEL_ACCESS_TOKEN'))
 line_bot_api = LineBotApi(os.getenv('CHANNEL_SECRET'))
-img_path = Path(__file__).resolve().parent/'static/img'
+img_path = Path(__file__).resolve().parent/'static/pet_img'
 pet = PetCreator()
 emo_list = db_get_emolist()
 '''
@@ -52,18 +52,18 @@ def handle_message(event):
         result = db_search_pet(user_id)
         if len(result) > 0:
             for row in result:
-                imgUrl = os.path.join(
-                    os.getenv('WEBHOOK_URL'), 'static/img', row[1])
+                img_url = os.path.join(
+                    os.getenv('WEBHOOK_URL'), 'static/pet_img', row[1])
                 pet_id = row[3]
                 emo_result = db_search_emotion(pet_id)
                 if emo_result != None:
                     emo_index = int(emo_result[0])
                     updated_time = emo_result[1]
                     petTemplate.add_pet_bubble(
-                        imgUrl, row[0], row[2], emo_list[emo_index], delta_time(updated_time))
+                        img_url, row[0], row[2], emo_list[emo_index], delta_time(updated_time))
                 else:
                     petTemplate.add_pet_bubble(
-                        imgUrl, row[0], row[2], "無", "未新增")
+                        img_url, row[0], row[2], "無", "未新增")
             line_bot_api.reply_message(
                 event.reply_token,
                 FlexSendMessage("flex", petTemplate.template)
@@ -128,6 +128,7 @@ def handle_message(event):
             pet_name_tp_action = []
             if is_dog(img_path/img_name):
                 emo_arg = predict_emotion(str(img_path/img_name))
+                pet.delete_img(img_path/img_name)  # 預測完後刪除照片
                 result = db_search_pet(user_id)
                 if len(result) > 0:
                     for i, row in enumerate(result):
@@ -167,7 +168,7 @@ def handle_message(event):
     other_pet_emo_match = re.match(r'其他(\d+)', s)
     for i, match in enumerate(updata_matchs):
         if match:
-            num = int(match.group(1))  # 抓字串開頭的寵物編號
+            num = int(match.group(1))  # 抓字串開頭的寵物編號(從0開始)
             pet.start_update_pete(user_id, i+1, num)
             line_bot_api.reply_message(
                 event.reply_token,
@@ -175,6 +176,8 @@ def handle_message(event):
             )
     if delete_match:
         num = int(delete_match.group(1))
+        img_name = db_search_pet(user_id)[num][1]
+        pet.delete_img(img_path/img_name)
         db_delete_pet(user_id, num)
         line_bot_api.reply_message(
             event.reply_token,

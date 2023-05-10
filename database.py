@@ -142,9 +142,6 @@ def db_update_pet(db, column_name, data, line_user_id, num):
             )
         '''
         # 使用execute方法執行SQL指令
-        print("+"*20)
-        print(cursor.mogrify(sql.format(column_name), (data, line_user_id, num)))
-        print("+"*20)
         cursor.execute(sql.format(column_name), (data, line_user_id, num))
 
         if cursor.rowcount > 0:

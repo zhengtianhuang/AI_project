@@ -14,7 +14,7 @@ from database import db_update_pet, db_insert_pet_if_not_exist, db_insert_user_i
 '''
 變數區
 '''
-staticPath = Path(__file__).resolve().parent/'static'
+static_path = Path(__file__).resolve().parent/'static'
 '''
 函式區
 '''
@@ -156,11 +156,19 @@ class PetCreator:
         '''
         timestamp = str(int(time.time()))
         filename = f"{img_id}-{timestamp}.jpg"
-        photo_path = os.path.join(staticPath, 'img', filename)
+        photo_path = os.path.join(static_path, 'pet_img', filename)
         with open(photo_path, 'wb') as f:
             for chunk in content.iter_content():
                 f.write(chunk)
         return filename
+
+    def delete_img(self, img_path):
+        '''
+        刪除圖片
+        '''
+        if os.path.isfile(img_path):
+            os.remove(img_path)
+            print("delete success")
 
     def _save_pet_img(self, user_id, img_id, content):
         '''
@@ -174,7 +182,7 @@ class PetCreator:
             return 0
         file_name = self._save_img(img_id, content)
         img_url = os.path.join(
-            os.getenv('WEBHOOK_URL'), 'static/img', file_name)
+            os.getenv('WEBHOOK_URL'), 'static/pet_img', file_name)
         self.breed[user_id] = return_image_breed(img_url)
         db_insert_user_if_not_exist(user_id)
         db_insert_pet_if_not_exist(user_id, self.name[user_id],
