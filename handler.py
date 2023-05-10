@@ -5,7 +5,7 @@
 from utils import (return_pet_restaurants, PetCreator, is_dog, delta_time)
 from line_templates import Templates
 from linebot import (LineBotApi, WebhookHandler)
-from linebot.models import (ButtonsTemplate, TemplateSendMessage, PostbackTemplateAction,
+from linebot.models import (ButtonsTemplate, TemplateSendMessage, PostbackTemplateAction, ImageSendMessage,
                             TextSendMessage, FlexSendMessage, TextMessage, LocationMessage, MessageEvent, ImageMessage, PostbackEvent)
 import os
 from database import db_delete_pet, db_search_pet, db_append_emotion, db_search_emotion, db_get_emolist
@@ -20,7 +20,8 @@ from dotenv import load_dotenv
 load_dotenv(str(Path(__file__).resolve().parent/"Secret/secret.env"))
 handler = WebhookHandler(os.getenv('CHANNEL_ACCESS_TOKEN'))
 line_bot_api = LineBotApi(os.getenv('CHANNEL_SECRET'))
-img_path = Path(__file__).resolve().parent/'static/pet_img'
+static_path = Path(__file__).resolve().parent/'static'
+pet_img_path = Path(__file__).resolve().parent/'static/pet_img'
 pet = PetCreator()
 emo_list = db_get_emolist()
 '''
@@ -69,6 +70,19 @@ def handle_message(event):
                 FlexSendMessage("flex", petTemplate.template)
             )
         return_text = "查無資料"
+    elif message == "功能介紹":
+        line_bot_api.reply_message(
+            event.reply_token,
+            [ImageSendMessage(preview_image_url=static_path/'img/5.png', original_content_url=static_path/'img/5.png'),
+             ImageSendMessage(preview_image_url=static_path/'img/6.png', original_content_url=static_path/'img/6.png')]
+        )
+    elif message == "寵物情緒分析":
+        line_bot_api.reply_message(
+            event.reply_token,
+            ImageSendMessage(preview_image_url=static_path/'img/6.png',
+                             original_content_url=static_path/'img/6.png')
+        )
+
     line_bot_api.reply_message(
         event.reply_token,
         TextSendMessage(text=return_text
@@ -126,9 +140,9 @@ def handle_message(event):
             content = line_bot_api.get_message_content(img_id)
             img_name = pet._save_img(img_id, content)
             pet_name_tp_action = []
-            if is_dog(img_path/img_name):
-                emo_arg = predict_emotion(str(img_path/img_name))
-                pet.delete_img(img_path/img_name)  # 預測完後刪除照片
+            if is_dog(pet_img_path/img_name):
+                emo_arg = predict_emotion(str(pet_img_path/img_name))
+                pet.delete_img(pet_img_path/img_name)  # 預測完後刪除照片
                 result = db_search_pet(user_id)
                 if len(result) > 0:
                     for i, row in enumerate(result):
@@ -177,7 +191,7 @@ def handle_message(event):
     if delete_match:
         num = int(delete_match.group(1))
         img_name = db_search_pet(user_id)[num][1]
-        pet.delete_img(img_path/img_name)
+        pet.delete_img(pet_img_path/img_name)
         db_delete_pet(user_id, num)
         line_bot_api.reply_message(
             event.reply_token,
