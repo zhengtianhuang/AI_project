@@ -5,7 +5,7 @@
 from utils import (return_pet_restaurants, PetCreator, is_dog, delta_time)
 from line_templates import Templates
 from linebot import (LineBotApi, WebhookHandler)
-from linebot.models import (ButtonsTemplate, TemplateSendMessage, PostbackTemplateAction, ImageSendMessage,
+from linebot.models import (ButtonsTemplate, TemplateSendMessage, PostbackTemplateAction, ImageSendMessage, QuickReply, QuickReplyButton,
                             TextSendMessage, FlexSendMessage, TextMessage, LocationMessage, MessageEvent, ImageMessage, PostbackEvent)
 import os
 from database import db_delete_pet, db_search_pet, db_append_emotion, db_search_emotion, db_get_emolist
@@ -221,12 +221,14 @@ def handle_message(event):
             TextSendMessage(
                 f"您的寵物現在很{emo_list[int(emo_arg)]}!")
         )
-
-    #
-    match_m_d = re.search(r'message_id=get_m_d', s)
-    if match_m_d:
-        action = re.search(r'action=([^&]+)', s).group(1)
+    elif s == "位置":
         line_bot_api.reply_message(
             event.reply_token,
-            TextSendMessage(action)
-        )
+            TextSendMessage(text='請選擇位置',
+                            quick_reply=QuickReply(items=[
+                                QuickReplyButton(action={
+                                    "type": "location",
+                                    "label": "Location"
+                                }
+                                )
+                            ])))

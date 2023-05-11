@@ -1,7 +1,7 @@
 import requests
 
 # 設置欲上傳的圖片路徑
-img_path = "./Tasks/richmenu/richmenu.png"
+img_path = "./Tasks/upload_richmenu/richmenu.png"
 
 
 # 1. 創建 Rich Menu，指定剛剛上傳的圖片的 contentId，獲取 richmenu id
@@ -19,6 +19,18 @@ data = {
     "name": "圖文選單 1",
     "chatBarText": "查看更多資訊",
     "areas": [
+        {
+            "bounds": {
+                "x": 45,
+                "y": 37,
+                "width": 2405,
+                "height": 310
+            },
+            "action": {
+                "type": "postback",
+                "data": "位置"
+            }
+        },
         {
             "bounds": {
                 "x": 41,
