@@ -2,7 +2,8 @@
 '''
 引用庫
 '''
-from utils import (return_pet_restaurants, PetCreator, is_dog, delta_time)
+#from utils import (return_pet_restaurants, return_pet_hospitals, PetCreator, is_dog, delta_time)
+from utils import (return_pet_hospitals, PetCreator, is_dog, delta_time)
 from line_templates import Templates
 from linebot import (LineBotApi, WebhookHandler)
 from linebot.models import (ButtonsTemplate, TemplateSendMessage, PostbackTemplateAction, ImageSendMessage, QuickReply, QuickReplyButton,
@@ -98,27 +99,33 @@ def handle_location(event):
     '''
     處理位置訊息
     '''
-    restaurants = return_pet_restaurants(
-        event.message.latitude, event.message.longitude)
+    """ restaurants = return_pet_restaurants(
+        event.message.latitude, event.message.longitude) """
     hospitals = return_pet_hospitals(
         event.message.latitude, event.message.longitude)
-    rt_template = Templates()
+    # rt_template = Templates()
     ht_template = Templates()  # template for hospitals
-    if len(restaurants) == 0 and len(hospitals) == 0:
+    """ if len(restaurants) == 0 and len(hospitals) == 0:
+        line_bot_api.reply_message(
+            event.reply_token,
+            TextSendMessage(text="查無資料")
+        )
+        return """
+    if len(hospitals) == 0:
         line_bot_api.reply_message(
             event.reply_token,
             TextSendMessage(text="查無資料")
         )
         return
 
-    for i, d in enumerate(restaurants):
+    """ for i, d in enumerate(restaurants):
         try:
             rt_template.add_restaurant_bubble(
                 d['resPhoto'], d['resName'], d['resRating'], d["resAdd"], d["resOpen"])
         except Exception as e:
             print(e)
         if i > 8:
-            break
+            break """
     
     for i, h in enumerate(hospitals):
         try:

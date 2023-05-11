@@ -5,7 +5,8 @@
 from json import load
 import os
 from pathlib import Path
-from utils import return_pet_restaurant_details
+#from utils import return_pet_restaurant_details
+from utils import return_pet_hospital_details
 '''
 變數區
 '''
@@ -27,7 +28,7 @@ class Templates():
         }
         self.t_count = 0
 
-    def add_restaurant_bubble(self, image, name, rating, address, is_open):
+    """ def add_restaurant_bubble(self, image, name, rating, address, is_open):
         '''
         將寵物餐廳資訊加入氣泡中並顯示在Flex Message中
         :param image : 圖片的網址
@@ -86,7 +87,7 @@ class Templates():
             print(ex)
             pass
 
-        self.template["contents"].append(bubble)
+        self.template["contents"].append(bubble) """
     
         def add_hospital_bubble(self, image, name, rating, address, operating_hours):
         '''

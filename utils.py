@@ -20,7 +20,7 @@ static_path = Path(__file__).resolve().parent/'static'
 '''
 
 
-def return_pet_restaurants(latitude, longitude):
+""" def return_pet_restaurants(latitude, longitude):
     '''
     使用 Google Maps API 找尋指定經緯度附近的寵物餐廳。
     :param latitude (float) : 緯度。
@@ -63,7 +63,7 @@ def return_pet_restaurants(latitude, longitude):
             res_info_all.append(res_info)
     else:
         print("Request failed.")
-    return res_info_all
+    return res_info_all """
 
 def return_pet_hospitals(latitude, longitude):
     '''
@@ -331,7 +331,7 @@ def delta_time(time):
         return data_time
 
 
-def return_pet_restaurant_details(name):
+""" def return_pet_restaurant_details(name):
     '''
     抓取google knowledge graph中的商家資訊
 
@@ -349,5 +349,26 @@ def return_pet_restaurant_details(name):
     request_url = "https://serpapi.com/search.json?engine=google&q=" + name
     response = requests.get(request_url, data=params)
     response.encoding = 'uft-8'
+    return response.json() """
+
+def return_pet_hospital_details(name):
+    '''
+    抓取google knowledge graph中的商家資訊
+
+    :param name : 店家名字
+    '''
+    params = {
+        "api_key": str(os.getenv("GOOGLE_SEARCH_API_KEY")),
+        "engine": "google",
+        "q": name,
+        "google_domain": "google.com.tw",
+        "hl": "zh-tw",
+        "gl": "tw",
+        "tbs": "veterinary_care"  # Set tbs to veterinary_care for pet hospitals
+    }
+    request_url = "https://serpapi.com/search.json?engine=google&q=" + name
+    response = requests.get(request_url, data=params)
+    response.encoding = 'uft-8'
     return response.json()
 
+    
