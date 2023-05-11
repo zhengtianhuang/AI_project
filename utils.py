@@ -65,6 +65,51 @@ def return_pet_restaurants(latitude, longitude):
         print("Request failed.")
     return res_info_all
 
+def return_pet_hospitals(latitude, longitude):
+    '''
+    使用 Google Maps API 找尋指定經緯度附近的寵物醫院。
+    :param latitude (float) : 緯度。
+    :param longitude (float) : 經度。
+    :return list : 包含附近寵物醫院資訊的字典列表。
+                   每個字典包含以下欄位：
+                    - hospitalPhoto (str): 醫院照片的 URL。
+                    - hospitalName (str): 醫院名稱。
+                    - hospitalRating (float): 醫院評分。
+                    - hospitalAdd (str): 醫院地址。
+                    - hospitalOpen (str): 醫院營業狀態，值為 "營業中" 或 "目前無營業"。
+    '''
+    hospital_info_all = []  # 存放所有找到的寵物醫院資訊
+    url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?"
+    api_key = os.getenv("GOOGLE_PLACES_API_KEY")
+    types = "veterinary_care"  # Specify the type as veterinary_care to get pet hospitals
+    keyword = "寵物醫院"  # Specify the keyword as pet hospital
+    radius = str(500)  # 範圍
+    hospital_photo_prfx = "https://maps.googleapis.com/maps/api/place/photo?maxwidth=400"
+    query_url = f"{url}location={latitude},{longitude}&radius={radius}&types={types}&keyword={keyword}&key={api_key}&language=zh-TW"
+    response = requests.get(query_url)
+    res = response.json()
+    if res["status"] == "OK":
+        results = res["results"]
+        for result in results:
+            hospital_info = {}
+            # 取得醫院照片的 URL
+            photo_reference = result.get('photos', [{}])[0].get('photo_reference', '')
+            hospital_info['hospitalPhoto'] = f"{hospital_photo_prfx}&photo_reference={photo_reference}&key={api_key}"
+            # 取得醫院名稱、評分、地址
+            hospital_info['hospitalName'] = result.get("name", "")
+            hospital_info['hospitalRating'] = result.get("rating", 0)
+            hospital_info['hospitalAdd'] = f"{result.get('plus_code', {}).get('compound_code', '')[-3:]}{result.get('vicinity', '')}"
+            # 取得醫院營業狀態
+            if result.get("opening_hours", {}).get("open_now", False):
+                hospital_info['hospitalOpen'] = "營業中"
+            else:
+                hospital_info['hospitalOpen'] = "目前無營業"
+            hospital_info_all.append(hospital_info)
+    else:
+        print("Request failed.")
+    return hospital_info_all
+
+
 
 class PetCreator:
     '''
