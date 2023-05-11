@@ -51,18 +51,31 @@ def initial():
     '''
     只需一開始執行一次
     '''
-
     restaurant_bubble = load(
         open(f'{bubblePath}/restaurant.json', 'r', encoding='utf-8'))
     pet_bubble = load(open(f'{bubblePath}/pet.json', 'r', encoding='utf-8'))
+
+    # Add hospital bubble
+    hospital_bubble = load(open(f'{bubblePath}/hospital.json', 'r', encoding='utf-8'))
+
     restaurant_bubble["hero"]["action"]["uri"] = os.getenv("WEBHOOK_URL")
     pet_bubble["hero"]["action"]["uri"] = os.getenv("WEBHOOK_URL")
+
+    # Set hospital bubble uri
+    hospital_bubble["hero"]["action"]["uri"] = os.getenv("WEBHOOK_URL")
+
     # 寫回 JSON 檔案
     with open(f'{bubblePath}/restaurant.json', 'w') as f:
         dump(restaurant_bubble, f)
+
     # 寫回 JSON 檔案
     with open(f'{bubblePath}/pet.json', 'w') as f:
         dump(pet_bubble, f)
+
+    # 寫回 JSON 檔案 for hospital
+    with open(f'{bubblePath}/hospital.json', 'w') as f:
+        dump(hospital_bubble, f)
+
 
 
 if __name__ == "__main__":

@@ -93,19 +93,24 @@ def handle_message(event):
 
 
 @ handler.add(MessageEvent, message=LocationMessage)
+@handler.add(MessageEvent, message=LocationMessage)
 def handle_location(event):
     '''
     處理位置訊息
     '''
     restaurants = return_pet_restaurants(
         event.message.latitude, event.message.longitude)
+    hospitals = return_pet_hospitals(
+        event.message.latitude, event.message.longitude)
     rt_template = Templates()
-    if len(restaurants) == 0:
+    ht_template = Templates()  # template for hospitals
+    if len(restaurants) == 0 and len(hospitals) == 0:
         line_bot_api.reply_message(
             event.reply_token,
             TextSendMessage(text="查無資料")
         )
         return
+
     for i, d in enumerate(restaurants):
         try:
             rt_template.add_restaurant_bubble(
@@ -114,10 +119,22 @@ def handle_location(event):
             print(e)
         if i > 8:
             break
+    
+    for i, h in enumerate(hospitals):
+        try:
+            ht_template.add_hospital_bubble(
+                h['hosPhoto'], h['hosName'], h['hosRating'], h["hosAdd"], h["hosOpen"])
+        except Exception as e:
+            print(e)
+        if i > 8:
+            break
+
     line_bot_api.reply_message(
         event.reply_token,
-        FlexSendMessage("flex", rt_template.template)
+        [FlexSendMessage("flex", rt_template.template),
+        FlexSendMessage("flex", ht_template.template)]
     )
+
 
 
 @ handler.add(MessageEvent, message=ImageMessage)

@@ -87,6 +87,68 @@ class Templates():
             pass
 
         self.template["contents"].append(bubble)
+    
+        def add_hospital_bubble(self, image, name, rating, address, operating_hours):
+        '''
+        將寵物醫院資訊加入氣泡中並顯示在Flex Message中
+        :param image : 圖片的網址
+        :param name : 名稱
+        :param rating : 評分
+        :param address: 醫院地址
+        :param operating_hours : 營業時間
+        '''
+        bubble = load(
+            open(f'{bubblePath}/hospital.json', 'r', encoding='utf-8'))
+
+        bubble["hero"]["url"] = str(image)
+        bubble["body"]["contents"][0]["text"] = str(name)
+        bubble["body"]["contents"][1]["contents"][5]["text"] = str(rating)
+        bubble["body"]["contents"][3]["contents"][1]["text"] = str(address)
+        bubble["body"]["contents"][4]["contents"][1]["text"] = str(operating_hours)
+
+        HalfStar = 'https://maps.gstatic.com/consumer/images/icons/2x/ic_star_rate_half_14.png'
+        EmptyStar = 'https://maps.gstatic.com/consumer/images/icons/2x/ic_star_rate_empty_14.png'
+
+        empty_star = int((5 - rating) // 1)
+        for i in range(empty_star):
+            bubble["body"]["contents"][1]["contents"][4-i]["url"] = EmptyStar
+
+        dot_star = round(rating % 1 * 10)
+        if dot_star < 8 and dot_star > 2:
+            bubble["body"]["contents"][1]["contents"][4 -
+                                                      empty_star]["url"] = HalfStar
+        elif dot_star <= 2:
+            bubble["body"]["contents"][1]["contents"][4 -
+                                                      empty_star]["url"] = EmptyStar
+
+        # Replace the following with your own logic for retrieving hospital details.
+        content = return_pet_hospital_details(name)
+
+        try:
+            if "website" in content["knowledge_graph"]:
+                website = content["knowledge_graph"]["website"]
+                bubble["hero"]["action"]["uri"] = website
+            else:
+                bubble["hero"]["action"]["uri"] = os.getenv("WEBHOOK_URL")
+            if "services_links" in content["knowledge_graph"]:
+                services_link = content["knowledge_graph"]["services_links"][0]["link"]
+                bubble["footer"]["contents"][0]["action"]["uri"] = services_link
+            else:
+                bubble["footer"]["contents"][0]["action"]["uri"] = os.getenv(
+                    "WEBHOOK_URL")
+            if "hospital_description" in content["knowledge_graph"]:
+                hospital_desc = content["knowledge_graph"]["hospital_description"]
+                bubble["footer"]["contents"][1]["action"][
+                    "data"] = f"action={hospital_desc}&message_id=get_h_d"
+            else:
+                bubble["footer"]["contents"][1]["action"][
+                    "data"] = os.getenv("WEBHOOK_URL")
+        except (KeyError, IndexError) as ex:
+            print(ex)
+            pass
+
+        self.template["contents"].append(bubble)
+
 
     def add_pet_bubble(self, image, name, breed, emo, time):
         '''
@@ -119,3 +181,4 @@ class Templates():
         # 將bubble加入template的contents
         self.template["contents"].append(bubble)
         self.t_count += 1  # 用於判斷用戶按第幾個按鈕來確認要對第幾隻寵物資料更動
+    
