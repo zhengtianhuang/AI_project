@@ -77,7 +77,6 @@ def handle_message(event):
                 os.getenv('WEBHOOK_URL'), 'static', 'img', '5.png'), original_content_url=os.path.join(
                 os.getenv('WEBHOOK_URL'), 'static', 'img', '5.png')), ImageSendMessage(preview_image_url=os.path.join(
                     os.getenv('WEBHOOK_URL'), 'static', 'img', '6.png'), original_content_url=os.path.join(os.getenv('WEBHOOK_URL'), 'static', 'img', '6.png'))])
-
     elif message == "寵物情緒分析":
         line_bot_api.reply_message(
             event.reply_token,
@@ -151,8 +150,8 @@ def handle_message(event):
                     for i, row in enumerate(result):
                         pet_name_tp_action.append(
                             PostbackTemplateAction(label=row[0], data=f"{user_id}新增{row[3]}名字{row[0]}情緒{emo_arg}"))
-                    pet_name_tp_action.append(
-                        PostbackTemplateAction(label="其他", data=f"其他{emo_arg}"))
+                    pet_name_tp_action.append(PostbackTemplateAction(
+                        label="其他", data=f"其他{emo_arg}"))
                     line_bot_api.reply_message(
                         event.reply_token,
                         TemplateSendMessage(
@@ -163,6 +162,10 @@ def handle_message(event):
                                 actions=pet_name_tp_action
                             )
                         ))
+                    return
+                else:  # 未新增任何寵物
+                    return_text = f"您的寵物現在很{emo_list[emo_arg]}"
+
     line_bot_api.reply_message(
         event.reply_token,
         TextSendMessage(return_text)
