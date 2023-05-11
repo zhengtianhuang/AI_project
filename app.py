@@ -56,6 +56,8 @@ def initial():
         open(f'{bubblePath}/restaurant.json', 'r', encoding='utf-8'))
     pet_bubble = load(open(f'{bubblePath}/pet.json', 'r', encoding='utf-8'))
     restaurant_bubble["hero"]["action"]["uri"] = os.getenv("WEBHOOK_URL")
+    restaurant_bubble["footer"]["contents"][0]["action"]["uri"] = os.getenv(
+        "WEBHOOK_URL")
     pet_bubble["hero"]["action"]["uri"] = os.getenv("WEBHOOK_URL")
     # 寫回 JSON 檔案
     with open(f'{bubblePath}/restaurant.json', 'w') as f:

@@ -78,10 +78,7 @@ class Templates():
             if "merchant_description" in content["knowledge_graph"]:
                 merchant_desc = content["knowledge_graph"]["merchant_description"]
                 bubble["footer"]["contents"][1]["action"][
-                    "data"] = f"action={merchant_desc}&message_id=get_m_d"
-            else:
-                bubble["footer"]["contents"][1]["action"][
-                    "data"] = os.getenv("WEBHOOK_URL")
+                    "data"] = merchant_desc[1:-1]
         except (KeyError, IndexError) as ex:
             print(ex)
             pass
