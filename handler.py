@@ -73,17 +73,14 @@ def handle_message(event):
     elif message == "功能介紹":
         line_bot_api.reply_message(
             event.reply_token,
-            [ImageSendMessage(preview_image_url=os.path.join(
-                os.getenv('WEBHOOK_URL'), 'static', 'img', '5.png'), original_content_url=os.path.join(
-                os.getenv('WEBHOOK_URL'), 'static', 'img', '5.png')), ImageSendMessage(preview_image_url=os.path.join(
-                    os.getenv('WEBHOOK_URL'), 'static', 'img', '6.png'), original_content_url=os.path.join(os.getenv('WEBHOOK_URL'), 'static', 'img', '6.png'))])
+            ImageSendMessage(preview_image_url=os.path.join(
+                os.getenv('WEBHOOK_URL'), 'static', 'img', 'main_explain.jpg'), original_content_url=os.path.join(
+                os.getenv('WEBHOOK_URL'), 'static', 'img', 'main_explain.jpg')))
     elif message == "寵物情緒分析":
         line_bot_api.reply_message(
             event.reply_token,
             ImageSendMessage(preview_image_url=os.path.join(
-                os.getenv('WEBHOOK_URL'), 'static', 'img', '6.png'), original_content_url=os.path.join(os.getenv('WEBHOOK_URL'), 'static', 'img', '6.png')
-            )
-        )
+                os.getenv('WEBHOOK_URL'), 'static', 'img', 'emotion_explain.jpg'), original_content_url=os.path.join(os.getenv('WEBHOOK_URL'), 'static', 'img', 'emotion_explain.jpg')))
 
     line_bot_api.reply_message(
         event.reply_token,
